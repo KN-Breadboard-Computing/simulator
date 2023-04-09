@@ -9,31 +9,34 @@ pub enum Pulse {
 
 #[derive(Debug, Clone)]
 pub struct ControlSignals {
-    bitfield: [u8; 40],
+    bitfield: u64,
 }
 
 macro_rules! gen_shorthands {
     ($(($s:ident,$i:literal,$in:literal,$cl:ident)),* ) => {
         impl ControlSignals {
             pub fn init() -> Self {
-                let mut bitfield = [0;40];
-                $(bitfield[$i] = $in);*;
-                Self {bitfield}
-            } 
-            pub fn filter(&self, clk: Pulse) -> Self {
-                let mut cp = self.to_owned();
+                let mut sig = Self {bitfield : 0};
+                $(sig.set($i,$in));*;
+                sig
+            }
+
+            const fn pulse_mask(clk: Pulse) -> u64 {
+                let mut filt = 0;
                 $(
-                    if clk != $cl {
-                        cp[$i] = 0;
+                    if (clk as usize) == ($cl as usize) {
+                        filt = bit_set(filt,$i,1);
                     }
                 );*
-                cp
+                filt
             }
+        }
+        pub mod con {
             $(pub const $s : usize = $i;)*
         }
     };
 }
- 
+
 use Pulse::*;
 gen_shorthands! {
     (LD_A,0,0,Clock),       (LD_B,1,0,Clock),       (LD_F,2,0,Clock),       (ALU_OUT,3,1,Now),    (ALU_0,4,0,Now),          (ALU_1,5,0,Now),          (ALU_2,6,0,Now),      (ALU_3,7,0,Now),      //A
@@ -43,46 +46,123 @@ gen_shorthands! {
     (MC_PLUS,32,1,InvClock),   (OUT_FLAG,33,1,Now),  (USE_SWITCH,34,1,Now)                                                                                                   //E
 }
 
+impl ControlSignals {
+    pub const NOW_MASK: u64 = Self::pulse_mask(Pulse::Now);
+    pub const CLK_MASK: u64 = Self::pulse_mask(Pulse::Clock);
+    pub const INVCLK_MASK: u64 = Self::pulse_mask(Pulse::InvClock);
 
-impl Index<usize> for ControlSignals {
-    type Output = u8;
+    pub fn from_bits(bits: u64) -> Self {
+        Self { bitfield: bits }
+    }
 
-    fn index(&self, index: usize) -> &Self::Output {
-        &self.bitfield[index]
+    pub fn get(&self, index: usize) -> u64 {
+        assert!(index < 64);
+        (self.bitfield >> (63 - index)) & 1
+    }
+
+    pub fn get_range_inc(&self, index: RangeInclusive<usize>) -> u64 {
+        assert!(index.end() < &64);
+        // println!("{index:?}");
+        // println!("{:064b}", self.bitfield);
+        // println!("{:064b}", self.bitfield << index.start());
+        // println!("{:064b}", (self.bitfield << index.start()) >> (63 - index.end()));
+        (self.bitfield << index.start()) >> (63 - (index.end() - index.start()))
+    }
+
+    pub fn set(&mut self, index: usize, bit: u64) {
+        assert!(bit == 0 || bit == 1);
+        let shifted = bit << (63 - index);
+        self.bitfield &= !shifted;
+        self.bitfield |= shifted;
+    }
+
+    pub fn filter(&self, mask: u64) -> Self {
+        Self {
+            bitfield: self.bitfield & mask,
+        }
     }
 }
 
-impl Index<Range<usize>> for ControlSignals {
-    type Output = [u8];
+const fn bit_set(bits: u64, index: usize, bit: u64) -> u64 {
+    assert!(bit == 0 || bit == 1);
+    let shifted = bit << (63 - index);
+    (bits & !shifted) | shifted
+}
 
-    fn index(&self, index: Range<usize>) -> &Self::Output {
-        &self.bitfield[index]
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn get_test() {
+        let sig = ControlSignals::init();
+
+        for i in 0..64 {
+            println!("{}", sig.get(i));
+        }
+        panic!();
+    }
+
+    #[test]
+    fn get_range_test() {
+        let sig = ControlSignals::init();
+
+        println!("Ref: {:064b}", sig.bitfield);
+
+        for i in 0..60 {
+            println!("{:064b}", sig.get_range_inc(i..=(i + 4)));
+        }
+
+        panic!();
+    }
+
+    #[test]
+    fn mask_test() {
+        println!("{:064b}", ControlSignals::NOW_MASK);
+        println!("{:064b}", ControlSignals::CLK_MASK);
+        println!("{:064b}", ControlSignals::INVCLK_MASK);
+        panic!();
     }
 }
 
-impl Index<RangeInclusive<usize>> for ControlSignals {
-    type Output = [u8];
+// impl Index<usize> for ControlSignals {
+//     type Output = u64;
 
-    fn index(&self, index: RangeInclusive<usize>) -> &Self::Output {
-        &self.bitfield[index]
-    }
-}
+//     fn index(&self, index: usize) -> &Self::Output {
+//         &((self.bitfield >> index) & 1)
+//     }
+// }
 
-impl IndexMut<usize> for ControlSignals {
-    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
-        &mut self.bitfield[index]
-    }
-}
+// impl Index<Range<usize>> for ControlSignals {
+//     type Output = u64;
 
-impl IndexMut<Range<usize>> for ControlSignals {
-    fn index_mut(&mut self, index: Range<usize>) -> &mut Self::Output {
-        &mut self.bitfield[index]
-    }
-}
+//     fn index(&self, index: Range<usize>) -> &Self::Output {
+//         &((self.bitfield >> index.start) & (!(!0 << index.end)))
+//     }
+// }
 
-impl IndexMut<RangeInclusive<usize>> for ControlSignals {
-    fn index_mut(&mut self, index: RangeInclusive<usize>) -> &mut Self::Output {
-        &mut self.bitfield[index]
-    }
-}
+// impl Index<RangeInclusive<usize>> for ControlSignals {
+//     type Output = [u8];
 
+//     fn index(&self, index: RangeInclusive<usize>) -> &Self::Output {
+//         &self.bitfield[index]
+//     }
+// }
+
+// impl IndexMut<usize> for ControlSignals {
+//     fn index_mut(&mut self, index: usize) -> &mut Self::Output {
+//         self.bitfield
+//     }
+// }
+
+// impl IndexMut<Range<usize>> for ControlSignals {
+//     fn index_mut(&mut self, index: Range<usize>) -> &mut Self::Output {
+//         &mut self.bitfield[index]
+//     }
+// }
+
+// impl IndexMut<RangeInclusive<usize>> for ControlSignals {
+//     fn index_mut(&mut self, index: RangeInclusive<usize>) -> &mut Self::Output {
+//         &mut self.bitfield[index]
+//     }
+// }

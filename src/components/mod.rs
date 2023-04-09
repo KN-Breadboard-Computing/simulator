@@ -4,8 +4,10 @@ pub mod alu;
 pub mod control;
 
 type MainBusSize = u8;
+type AddressBusSize = u16;
 pub struct Buses {
-    pub main: Bus<MainBusSize>
+    pub main: Bus<MainBusSize>,
+    pub address: Bus<AddressBusSize>,
 }
 pub trait Component {
     fn react(&mut self, signals: &ControlSignals, bus : &mut Buses);
@@ -18,7 +20,7 @@ pub struct Bus<I> {
 
 impl Buses {
     pub fn init() -> Self {
-        Self { main: Bus::init() }
+        Self { main: Bus::init(), address : Bus::init() }
     }
 }
 

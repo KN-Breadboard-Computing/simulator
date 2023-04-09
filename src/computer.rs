@@ -1,6 +1,6 @@
 use std::iter::once;
 
-use crate::{components::{Component, control::ControlUnit, Buses}, signals::Pulse};
+use crate::{components::{Component, control::ControlUnit, Buses}, signals::{Pulse, ControlSignals}};
 
 pub struct Computer {
     components: Vec<Box<dyn Component>>,
@@ -12,17 +12,17 @@ impl Computer {
         while let Some(signals) = self.control.set_signals() {
             let mut bus = Buses::init();
 
-            let filt = signals.filter(Pulse::Now);
+            let filt = signals.filter(ControlSignals::NOW_MASK);
             for comp in self.all_comp() {
                 comp.react(&filt, &mut bus);
             }
             
-            let filt = signals.filter(Pulse::Clock);
+            let filt = signals.filter(ControlSignals::CLK_MASK);
             for comp in self.all_comp() {
                 comp.react(&filt, &mut bus);
             }
             
-            let filt = signals.filter(Pulse::InvClock);
+            let filt = signals.filter(ControlSignals::INVCLK_MASK);
             for comp in self.all_comp() {
                 comp.react(&filt, &mut bus);
             }
