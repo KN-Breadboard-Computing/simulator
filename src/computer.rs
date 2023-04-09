@@ -1,4 +1,4 @@
-use std::iter::once_with;
+use std::iter::once;
 
 use crate::{components::{Component, control::ControlUnit, Buses}, signals::Pulse};
 
@@ -30,6 +30,6 @@ impl Computer {
     }
 
     fn all_comp(&mut self) -> impl Iterator<Item = &mut (dyn Component + 'static)> {
-        self.components.iter_mut().map(|bx| bx.as_mut()).chain(once_with(|| self.control.as_mut() as &mut dyn Component))
+        self.components.iter_mut().map(|bx| bx.as_mut()).chain(once(self.control.as_mut() as &mut dyn Component))
     }
 }
