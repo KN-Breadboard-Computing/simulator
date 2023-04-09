@@ -14,7 +14,7 @@ impl ControlUnit {
 }
 
 impl Component for ControlUnit {
-    fn react(&mut self, signals: &ControlSignals, bus : &mut Buses, pulse: Pulse) {
+    fn react(&mut self, signals: &ControlSignals, bus : &mut Buses) {
         todo!()
     }
 }

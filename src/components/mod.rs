@@ -3,22 +3,17 @@ use crate::signals::ControlSignals;
 pub mod alu;
 pub mod control;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum Pulse {
-    Now,
-    Clock,
-    InvClock,
-}
-
+type MainBusSize = u8;
 pub struct Buses {
-    pub main: Bus
+    pub main: Bus<MainBusSize>
 }
 pub trait Component {
-    fn react(&mut self, signals: &ControlSignals, bus : &mut Buses, pulse: Pulse);
+    fn react(&mut self, signals: &ControlSignals, bus : &mut Buses);
 }
 
-pub struct Bus {
-    value: Option<usize>,
+
+pub struct Bus<I> {
+    value: Option<I>,
 }
 
 impl Buses {
@@ -27,17 +22,17 @@ impl Buses {
     }
 }
 
-impl Bus {
+impl<I : Copy> Bus<I> {
     pub fn init() -> Self {
         Self { value: None }
     }
-    pub fn put(&mut self, value: usize) {
+    pub fn put(&mut self, value: I) {
         match self.value {
             Some(_) => panic!(),
             None => self.value = Some(value),
         }
     }
-    pub fn get(&self) -> usize {
+    pub fn get(&self) -> I {
         match self.value {
             Some(value) => value,
             None => panic!(),
