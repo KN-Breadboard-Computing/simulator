@@ -11,6 +11,10 @@ pub struct ControlUnit {
 }
 
 impl ControlUnit {
+    pub fn init() -> Self {
+        Self { micro_count: 0, i_reg: 0, program_count: 0 }
+    }
+
     pub fn set_signals(&mut self) -> Option<ControlSignals> {
         //Table of microcodes  
         //(i_reg,micro_count) -> signals 
@@ -45,6 +49,10 @@ impl Component for ControlUnit {
         if signals.get(LD_IR) == 1 {
             self.i_reg = bus.main.get();
         }
+    }
+
+    fn as_any(&mut self) -> &mut dyn Any {
+        self
     }
 }
 
@@ -91,6 +99,8 @@ fn build_map() -> HashMap<(u8,u8), u64> {
     
     map.insert((0b1,0b01), 0b10000010_01100110_00111000_11110001_11000000 << (64 - 40));
     map.insert((0b1,0b10), 0b00010000_01100110_00111000_11110000_11000000 << (64 - 40));
+
+    //TODO: A way to load eeprom data
 
     map
 }

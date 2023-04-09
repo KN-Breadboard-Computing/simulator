@@ -3,9 +3,20 @@ use super::*;
 
 type AluSize = u8;
 
+#[derive(Debug)]
 pub struct Alu {
     a: AluSize,
     b: AluSize,
+}
+
+impl Alu {
+    pub fn init() -> Self {
+        Self { a: 0, b: 0 }
+    }
+
+    pub fn debug_regs(&mut self) -> (&mut AluSize, &mut AluSize) {
+        (&mut self.a, &mut self.b)
+    }
 }
 
 impl Component for Alu {
@@ -35,7 +46,7 @@ impl Component for Alu {
                 _ => unreachable!()
             };
 
-            //TODO: flags
+            //TODO: implement flags
 
             bus.main.put(alu_res);
         }
@@ -45,6 +56,10 @@ impl Component for Alu {
         if signals.get(LD_B) == 1 {
             self.b = bus.main.get();
         }
+    }
+
+    fn as_any(&mut self) -> &mut dyn Any {
+        self
     }
 }
 

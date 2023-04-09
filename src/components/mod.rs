@@ -1,19 +1,26 @@
+use std::{fmt::Debug, any::Any};
+
 use crate::signals::ControlSignals;
 
 pub mod alu;
 pub mod control;
+pub mod mem;
 
 type MainBusSize = u8;
 type AddressBusSize = u16;
+#[derive(Debug)]
 pub struct Buses {
     pub main: Bus<MainBusSize>,
     pub address: Bus<AddressBusSize>,
 }
-pub trait Component {
+pub trait Component : Debug + Any{
     fn react(&mut self, signals: &ControlSignals, bus : &mut Buses);
+
+    ///rip
+    fn as_any(&mut self) -> &mut dyn Any;
 }
 
-
+#[derive(Debug)]
 pub struct Bus<I> {
     value: Option<I>,
 }
