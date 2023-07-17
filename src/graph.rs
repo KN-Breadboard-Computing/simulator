@@ -1,28 +1,28 @@
-use std::{collections::VecDeque, marker::PhantomData, ops::Deref};
+use std::{collections::VecDeque, marker::PhantomData};
 
 use bitvec::prelude::*;
 use slotmap::{SecondaryMap, SlotMap};
 
 use crate::components::Component;
 
-use self::node::{Node, InnerNodeRef, Slot};
+use self::node::{UntypedNodeHandle, Node, Slot};
 pub mod node;
 
 #[derive(Debug)]
 pub struct Graph {
-    nodes: SlotMap<InnerNodeRef, Node>,
-    inputs: SecondaryMap<InnerNodeRef, BitVec>,
-    outputs: SecondaryMap<InnerNodeRef, BitVec>,
+    nodes: SlotMap<UntypedNodeHandle, Node>,
+    inputs: SecondaryMap<UntypedNodeHandle, BitVec>,
+    outputs: SecondaryMap<UntypedNodeHandle, BitVec>,
 }
 
 #[derive(Debug, Clone, Copy)]
-pub struct CompRef<C> {
-    inner: InnerNodeRef,
-    marker: PhantomData<C>
+pub struct CompHandle<C> {
+    inner: UntypedNodeHandle,
+    marker: PhantomData<C>,
 }
 
-impl<C> From<CompRef<C>> for InnerNodeRef {
-    fn from(value: CompRef<C>) -> Self {
+impl<C> From<CompHandle<C>> for UntypedNodeHandle {
+    fn from(value: CompHandle<C>) -> Self {
         value.inner
     }
 }
@@ -36,7 +36,7 @@ impl Graph {
         }
     }
 
-    pub fn add_component<C: Component + 'static>(&mut self, component: C) -> CompRef<C> {
+    pub fn add_component<C: Component + 'static>(&mut self, component: C) -> CompHandle<C> {
         let input_size = C::input_size();
         let output_size = C::output_size();
 
@@ -51,14 +51,17 @@ impl Graph {
         self.inputs.insert(node_ref, bitvec![0;input_size]);
         self.outputs.insert(node_ref, bitvec![0;output_size]);
 
-        CompRef { inner: node_ref, marker: PhantomData }
+        CompHandle {
+            inner: node_ref,
+            marker: PhantomData,
+        }
     }
 
     pub fn add_connection(
         &mut self,
-        node_a: impl Into<InnerNodeRef>,
+        node_a: impl Into<UntypedNodeHandle>,
         slot_a: usize,
-        node_b: impl Into<InnerNodeRef>,
+        node_b: impl Into<UntypedNodeHandle>,
         slot_b: usize,
     ) {
         let node_a = node_a.into();
@@ -74,7 +77,7 @@ impl Graph {
         });
     }
 
-    pub fn propagate_from(&mut self, node: impl Into<InnerNodeRef>) {
+    pub fn propagate_from(&mut self, node: impl Into<UntypedNodeHandle>) {
         let node = node.into();
 
         let mut queue = VecDeque::new();
@@ -105,12 +108,20 @@ impl Graph {
         }
     }
 
-    pub fn get_component<C : 'static>(&self, c_ref: CompRef<C>) -> &C {
-        self.nodes[c_ref.into()].component.as_any().downcast_ref().unwrap()
+    pub fn get_comp<C: 'static>(&self, handle: CompHandle<C>) -> &C {
+        self.nodes[handle.into()]
+            .component
+            .as_any()
+            .downcast_ref()
+            .unwrap()
     }
 
-    pub fn get_component_mut<C : 'static>(&mut self, c_ref: CompRef<C>) -> &mut C {
-        self.nodes[c_ref.into()].component.as_any_mut().downcast_mut().unwrap()
+    pub fn get_comp_mut<C: 'static>(&mut self, handle: CompHandle<C>) -> &mut C {
+        self.nodes[handle.into()]
+            .component
+            .as_any_mut()
+            .downcast_mut()
+            .unwrap()
     }
 }
 

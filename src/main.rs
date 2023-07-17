@@ -21,10 +21,10 @@ pub fn main() {
     graph.propagate_from(a);
     graph.propagate_from(b);
 
-    println!("A: {}", graph.get_component(a).state);
-    println!("B: {}", graph.get_component(b).state);
+    println!("A: {}", graph.get_comp(a).state);
+    println!("B: {}", graph.get_comp(b).state);
     println!("And");
-    println!("Out: {}", graph.get_component(out).state);
+    println!("Out: {}", graph.get_comp(out).state);
 
     for line in stdin().lines() {
         let line = line.unwrap();
@@ -32,19 +32,19 @@ pub fn main() {
         
         match inp {
             "A" => {
-                graph.get_component_mut(a).state = !graph.get_component(a).state;
+                graph.get_comp_mut(a).state = !graph.get_comp(a).state;
                 graph.propagate_from(a);
             },
             "B" => {
-                graph.get_component_mut(b).state = !graph.get_component(b).state;
+                graph.get_comp_mut(b).state = !graph.get_comp(b).state;
                 graph.propagate_from(b);
             }
             _ => ()
         }
         
-        println!("A: {}", graph.get_component(a).state);
-        println!("B: {}", graph.get_component(b).state);
+        println!("A: {}", graph.get_comp(a).state);
+        println!("B: {}", graph.get_comp(b).state);
         println!("And");
-        println!("Out: {}", graph.get_component(out).state);
+        println!("Out: {}", graph.get_comp(out).state);
     }    
 }

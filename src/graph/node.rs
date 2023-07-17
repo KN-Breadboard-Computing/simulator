@@ -2,7 +2,7 @@ use slotmap::new_key_type;
 
 use crate::components::Component;
 
-new_key_type! {pub struct InnerNodeRef;}
+new_key_type! {pub struct UntypedNodeHandle;}
 
 #[derive(Debug)]
 pub struct Node {
@@ -13,6 +13,6 @@ pub struct Node {
 
 #[derive(Debug, Clone)]
 pub struct Slot {
-    pub target_node: InnerNodeRef,
+    pub target_node: UntypedNodeHandle,
     pub target_slot: usize,
 }
