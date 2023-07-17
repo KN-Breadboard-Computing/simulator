@@ -1,3 +1,1 @@
-pub mod signals;
-pub mod components;
-pub mod computer;
+pub mod graph;
