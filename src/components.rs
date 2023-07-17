@@ -1,5 +1,6 @@
 pub mod gates;
 pub mod simple;
+pub mod connectors;
 
 use std::{any::Any, fmt::Debug};
 

@@ -108,20 +108,32 @@ impl Graph {
         }
     }
 
-    pub fn get_comp<C: 'static>(&self, handle: CompHandle<C>) -> &C {
-        self.nodes[handle.into()]
+    pub fn get_comp<C: 'static>(&self, node: CompHandle<C>) -> &C {
+        self.nodes[node.into()]
             .component
             .as_any()
             .downcast_ref()
             .unwrap()
     }
 
-    pub fn get_comp_mut<C: 'static>(&mut self, handle: CompHandle<C>) -> &mut C {
-        self.nodes[handle.into()]
+    pub fn get_comp_mut<C: 'static>(&mut self, node: CompHandle<C>) -> &mut C {
+        self.nodes[node.into()]
             .component
             .as_any_mut()
             .downcast_mut()
             .unwrap()
+    }
+
+    pub fn add_input_slot(&mut self, node: impl Into<UntypedNodeHandle>) {
+        let node = node.into();
+        self.nodes[node].input_slots.push(None);
+        self.inputs[node].push(false);
+    }
+
+    pub fn add_output_slot(&mut self, node: impl Into<UntypedNodeHandle>) {
+        let node = node.into();
+        self.nodes[node].output_slots.push(None);
+        self.outputs[node].push(false);
     }
 }
 
