@@ -1,6 +1,6 @@
 use std::io::stdin;
 
-use emulator::{graph::Graph, components::{simple::{Constant, DebugOutput}, gates::{And, Xor}, connectors::Fork}};
+use emulator_core::{graph::Graph, components::{simple::{Constant, DebugOutput}, gates::{And, Xor}, connectors::Fork}};
 
 pub fn main() {
     
