@@ -27,6 +27,12 @@ impl<C> From<CompHandle<C>> for UntypedNodeHandle {
     }
 }
 
+impl<C> From<UntypedNodeHandle> for CompHandle<C> {
+    fn from(value: UntypedNodeHandle) -> Self {
+        Self { inner: value, marker: PhantomData }
+    }
+}
+
 impl Graph {
     pub fn new() -> Self {
         Self {
@@ -108,8 +114,8 @@ impl Graph {
         }
     }
 
-    pub fn get_comp<C: 'static>(&self, node: CompHandle<C>) -> &C {
-        self.nodes[node.into()]
+    pub fn get_comp<C: 'static>(&self, node: impl Into<CompHandle<C>>) -> &C {
+        self.nodes[node.into().into()]
             .component
             .as_any()
             .downcast_ref()
@@ -120,8 +126,8 @@ impl Graph {
         self.nodes[node].component.as_ref()
     }
 
-    pub fn get_comp_mut<C: 'static>(&mut self, node: CompHandle<C>) -> &mut C {
-        self.nodes[node.into()]
+    pub fn get_comp_mut<C: 'static>(&mut self, node: impl Into<CompHandle<C>>) -> &mut C {
+        self.nodes[node.into().into()]
             .component
             .as_any_mut()
             .downcast_mut()
@@ -130,6 +136,10 @@ impl Graph {
 
     pub fn get_comp_untyped_mut(&mut self, node: UntypedNodeHandle) -> &mut dyn Component {
         self.nodes[node].component.as_mut()
+    }
+
+    pub fn update_component<C: 'static + Component>(&mut self, node: impl Into<CompHandle<C>>, comp: C) {
+        self.nodes[node.into().into()].component = Box::new(comp);
     }
 
     pub fn add_input_slot(&mut self, node: impl Into<UntypedNodeHandle>) {
