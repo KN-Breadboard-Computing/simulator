@@ -116,12 +116,20 @@ impl Graph {
             .unwrap()
     }
 
+    pub fn get_comp_untyped(&self, node: UntypedNodeHandle) -> &dyn Component {
+        self.nodes[node].component.as_ref()
+    }
+
     pub fn get_comp_mut<C: 'static>(&mut self, node: CompHandle<C>) -> &mut C {
         self.nodes[node.into()]
             .component
             .as_any_mut()
             .downcast_mut()
             .unwrap()
+    }
+
+    pub fn get_comp_untyped_mut(&mut self, node: UntypedNodeHandle) -> &mut dyn Component {
+        self.nodes[node].component.as_mut()
     }
 
     pub fn add_input_slot(&mut self, node: impl Into<UntypedNodeHandle>) {
