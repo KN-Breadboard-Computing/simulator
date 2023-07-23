@@ -7,4 +7,6 @@ edition = "2021"
 
 [dependencies]
 bitvec = "1.0.1"
+enum_dispatch = "0.3.12"
+serde = { version = "1.0.174", features = ["derive"] }
 slotmap = "1.0.6"
