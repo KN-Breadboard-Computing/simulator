@@ -1,2 +1,9 @@
-node_modules
-dist
+node_modules/
+dist/
+.env
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln

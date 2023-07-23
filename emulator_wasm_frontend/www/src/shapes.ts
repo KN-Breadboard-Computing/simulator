@@ -1,13 +1,13 @@
 import Konva from 'konva'
 
-export var current = null
+export let current: {node: number, slot: number, x: number, y: number} | null = null
 
 export class GraphNode {
-    group
-    #box
-    #label
+    group: Konva.Group
+    #box: Konva.Rect
+    #label: Konva.Text
 
-    constructor(id, x, y, width, height, text, input_size, output_size) {
+    constructor(id: number, x: number, y: number, width: number, height: number, text: string, input_size: number, output_size: number) {
         var group = new Konva.Group({ draggable: true })
 
         var box = new Konva.Rect({
