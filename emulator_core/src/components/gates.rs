@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use super::ComponentBehaviour;
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, Default, Serialize, Deserialize)]
 pub struct And;
 
 impl ComponentBehaviour for And {
@@ -17,7 +17,7 @@ impl ComponentBehaviour for And {
     }
 }
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, Default, Serialize, Deserialize)]
 pub struct Or;
 
 impl ComponentBehaviour for Or {
