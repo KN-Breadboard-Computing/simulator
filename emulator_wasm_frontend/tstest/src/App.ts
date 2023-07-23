@@ -4,11 +4,10 @@ import { GraphNode } from './shapes';
 export class App {
     async run() {
         const emulator = await import('emulator');
-        const Graph = emulator.Graph;
 
         console.log("hello")
 
-        let graph = Graph.new()
+        let graph = emulator.Graph.new()
 
         let c1 = graph.add_comp({ "Constant" : { "state" : false } })
         console.log(c1)
