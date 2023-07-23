@@ -1,18 +1,31 @@
-/* eslint-disable no-undef */
-const CopyWebpackPlugin = require("copy-webpack-plugin");
-const path = require('path');
+import path from 'path';
+import { fileURLToPath } from 'url';
+import CopyWebpackPlugin from 'copy-webpack-plugin';
 
-module.exports = {
-  entry: "./bootstrap.js",
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+export default {
+  // The entry point of your TypeScript application
+  entry: './src/index.ts',
   output: {
-    path: path.resolve(__dirname, "dist"),
-    filename: "bootstrap.js",
+    path: path.resolve(__dirname, 'dist'),
+    filename: 'bootstrap.js',
   },
-  mode: "development",
+  resolve: {
+    // Add `.ts` and `.tsx` as a resolvable extension.
+    extensions: ['.ts', '.tsx', '.js', '.jsx'],
+  },
+  module: {
+    rules: [
+      // All files with a '.ts' or '.tsx' extension will be handled by 'ts-loader'.
+      { test: /\.tsx?$/, loader: 'ts-loader' },
+    ],
+  },
   plugins: [
-    new CopyWebpackPlugin({patterns : ['index.html']})
+    new CopyWebpackPlugin({patterns : ['index.html']}),
   ],
+  mode: "development",
   experiments : {
     asyncWebAssembly : true,
-  }
+  },
 };
