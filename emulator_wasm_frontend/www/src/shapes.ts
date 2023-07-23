@@ -38,7 +38,7 @@ export class GraphNode {
             let pos_y = y + (i + 1) * (height / (input_size + 1))
             let pos_x = x
             let circle = new Konva.Circle({
-                x: pos_x, y: pos_y, radius: height / 20,
+                x: pos_x, y: pos_y, radius: 5,
                 fill: "red", stroke: 'black', strokeWidth: 2,
             })
             circle.on("pointerclick", function () {
@@ -67,7 +67,7 @@ export class GraphNode {
             let pos_y = y + (i + 1) * (height / (output_size + 1))
             let pos_x = x + width
             let circle = new Konva.Circle({
-                x: pos_x, y: pos_y, radius: height / 20,
+                x: pos_x, y: pos_y, radius: 5,
                 fill: "green", stroke: 'black', strokeWidth: 2,
             })
             circle.on("pointerclick", function () {

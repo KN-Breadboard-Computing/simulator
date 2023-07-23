@@ -52,7 +52,7 @@ export class App {
             let pos = stage.getPointerPosition()
 
             if (selected != null) {
-                var comp = new GraphNode(0, pos.x - 50, pos.y - 50, 200, 100, selected.component.type, selected.component.input_size, selected.component.output_size)
+                var comp = new GraphNode(0, pos.x - selected.component.width/2, pos.y - selected.component.height/2, selected.component.width, selected.component.height, selected.component.type, selected.component.input_size, selected.component.output_size)
                 layer.add(comp.group)
             }
             
