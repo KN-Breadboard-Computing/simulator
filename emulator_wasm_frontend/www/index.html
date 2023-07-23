@@ -3,10 +3,56 @@
   <head>
     <meta charset="utf-8">
     <title>Emulator</title>
+    <style>
+      #main {
+        flex-direction: row;
+        display: flex;
+      }
+
+      #sidebar {
+        min-width: 15rem;
+        padding: 1rem;
+      }
+
+      #container {
+        background-color: lightgrey;
+      }
+
+      #button_panel {
+        flex-direction: row;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-evenly;
+        background-color: lightgray;
+      }
+
+      .comp_button {
+        margin: 10px;
+        min-width: 6rem;
+      }
+
+      .comp_button.selected {
+        background-color: lightgreen;
+        border: none;
+      }
+
+      .panel_label {
+        text-align: center;
+        font-family: Arial, Helvetica, sans-serif;
+        font-weight: bold;
+      }
+    </style>
   </head>
   <body>
     <noscript>This page contains webassembly and javascript content, please enable javascript in your browser.</noscript>
-    <div id="container"></div>
+    <div id="main">
+      <div id="sidebar">
+        <p class="panel_label">Add</p>
+        <div id="button_panel">
+        </div>
+      </div>
+      <div id="container"></div>
+    </div>
     <script src="./bootstrap.js"></script>
   </body>
 </html>

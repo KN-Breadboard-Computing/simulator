@@ -1,24 +1,28 @@
 import Konva from 'konva';
 import { GraphNode } from './shapes';
+import { components } from './component_list';
+import { selected, setup_side_panel } from './side_panel';
 
 export class App {
     async run() {
+        setup_side_panel()
+
         const emulator = await import('emulator');
 
         console.log("hello")
 
         let graph = emulator.Graph.new()
 
-        let c1 = graph.add_comp({ "Constant" : { "state" : false } })
+        let c1 = graph.add_comp({ "type": "Constant"})
         console.log(c1)
 
-        let c2 = graph.add_comp({ "Constant" : { "state" : false } })
+        let c2 = graph.add_comp({ "type": "Constant", "state" : true})
         console.log(c2)
 
-        let or = graph.add_comp({"Or" : null})
+        let or = graph.add_comp({ "type": "Or" })
         console.log(or)
 
-        let out = graph.add_comp({ "DebugOutput" : { "state" : false } })
+        let out = graph.add_comp({ "type": "DebugOutput"})
         console.log(out)
 
 
@@ -39,15 +43,19 @@ export class App {
             width: window.innerWidth,
             height: window.innerHeight,
         });
-    
+
         // add canvas element
         var layer = new Konva.Layer();
         stage.add(layer);
-    
-        var test1 = new GraphNode(0, 100,100,100,100,"Hello", 2, 1)
-        layer.add(test1.group)
-    
-        var test2 = new GraphNode(1, 500,100,100,100,"Test", 2, 1)
-        layer.add(test2.group)
+
+        stage.on("pointerclick", function () {
+            let pos = stage.getPointerPosition()
+
+            if (selected != null) {
+                var comp = new GraphNode(0, pos.x - 50, pos.y - 50, 200, 100, selected.component.type, selected.component.input_size, selected.component.output_size)
+                layer.add(comp.group)
+            }
+            
+        })
     }
 }
