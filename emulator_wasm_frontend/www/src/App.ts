@@ -1,11 +1,21 @@
 import Konva from 'konva';
-import { GraphNode } from './shapes';
+import { GraphNode } from './GraphNode';
+import { Cable } from './Cable';
+import { Context } from './Context';
 
 export class App {
+    layer: Konva.Layer;
+    cableLayer: Konva.Layer;
+    cables: Cable[]
+
+    constructor() {
+        this.layer = new Konva.Layer();
+        this.cableLayer = new Konva.Layer();
+        this.cables = []
+    }
+
     async run() {
         const emulator = await import('emulator');
-
-        console.log("hello")
 
         let graph = emulator.Graph.new()
 
@@ -39,15 +49,31 @@ export class App {
             width: window.innerWidth,
             height: window.innerHeight,
         });
+
+        stage.add(this.layer);
+        stage.add(this.cableLayer);
+
+        let context: Context = new Context()
+        context.addCable = this.addCable.bind(this)
+        context.updateCable = this.updateCables.bind(this)
     
-        // add canvas element
-        var layer = new Konva.Layer();
-        stage.add(layer);
+        var test1 = new GraphNode(0, 100,100,100,100,"Hello", 2, 1, context);
+        this.layer.add(test1)
     
-        var test1 = new GraphNode(0, 100,100,100,100,"Hello", 2, 1)
-        layer.add(test1.group)
-    
-        var test2 = new GraphNode(1, 500,100,100,100,"Test", 2, 1)
-        layer.add(test2.group)
+        var test2 = new GraphNode(1, 500,100,100,100,"Test", 2, 1, context)
+        this.layer.add(test2)
     }
+
+    addCable(a: Konva.Shape, b: Konva.Shape) {
+        let cable = new Cable(a,b);
+        this.cables.push(cable)
+        this.cableLayer.add(cable)
+    }
+
+    updateCables() {
+        for(var cable of this.cables) {
+            cable.update()
+        }
+    }
+    
 }
