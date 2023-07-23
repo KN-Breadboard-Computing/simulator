@@ -33,8 +33,16 @@ impl Graph {
         self.0[node.0] = value;
     }
 
+    pub fn remove_comp(&mut self, node: &NodeId) {
+        self.0.remove_comp(node.0)
+    }
+
     pub fn add_conn(&mut self, start: &NodeId, start_slot: usize, target: &NodeId, target_slot: usize) {
         self.0.add_conn(start.0, start_slot, target.0, target_slot)
+    }
+
+    pub fn remove_conn(&mut self, start: &NodeId, start_slot: usize, target: &NodeId, target_slot: usize) {
+        self.0.remove_conn(start.0, start_slot, target.0, target_slot)
     }
 
     pub fn propagate(&mut self, start: &NodeId) {
