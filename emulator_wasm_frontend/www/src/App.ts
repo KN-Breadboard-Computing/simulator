@@ -2,16 +2,19 @@ import Konva from 'konva';
 import { GraphNode } from './GraphNode';
 import { Cable } from './Cable';
 import { Context } from './Context';
+import { Slot } from './Slot';
 
 export class App {
-    layer: Konva.Layer;
+    componentLayer: Konva.Layer;
     cableLayer: Konva.Layer;
     cables: Cable[]
+    selectedSlot: Slot | null
 
     constructor() {
-        this.layer = new Konva.Layer();
+        this.componentLayer = new Konva.Layer();
         this.cableLayer = new Konva.Layer();
         this.cables = []
+        this.selectedSlot = null
     }
 
     async run() {
@@ -50,21 +53,27 @@ export class App {
             height: window.innerHeight,
         });
 
-        stage.add(this.layer);
+        stage.add(this.componentLayer);
         stage.add(this.cableLayer);
 
-        let context: Context = new Context()
-        context.addCable = this.addCable.bind(this)
-        context.updateCable = this.updateCables.bind(this)
+        let context: Context = new Context({
+            addCable: this.addCable.bind(this),
+            updateCables: this.updateCables.bind(this),
+            updateSelectedSlot: this.updateSelectedSlot
+        })
     
         var test1 = new GraphNode(0, 100,100,100,100,"Hello", 2, 1, context);
-        this.layer.add(test1)
+        this.componentLayer.add(test1)
     
         var test2 = new GraphNode(1, 500,100,100,100,"Test", 2, 1, context)
-        this.layer.add(test2)
+        this.componentLayer.add(test2)
     }
 
-    addCable(a: Konva.Shape, b: Konva.Shape) {
+    addCable(a: Slot, b: Slot) {
+        if(a.slotType == b.slotType) {
+            console.error("Can't connect slots of the same type");
+            return;
+        }
         let cable = new Cable(a,b);
         this.cables.push(cable)
         this.cableLayer.add(cable)
@@ -73,6 +82,18 @@ export class App {
     updateCables() {
         for(var cable of this.cables) {
             cable.update()
+        }
+    }
+
+    updateSelectedSlot(clickedSlot: Slot) {
+        if (this.selectedSlot == null) {
+            this.selectedSlot = clickedSlot
+            console.log(this.selectedSlot)
+        } else if (this.selectedSlot != clickedSlot) {
+            this.addCable(this.selectedSlot, clickedSlot)
+            this.selectedSlot = null
+        } else {
+            this.selectedSlot = null
         }
     }
     

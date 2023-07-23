@@ -1,6 +1,6 @@
 import Konva from 'konva'
 import { Cable } from './Cable'
-import { Slot } from './Slot'
+import { Slot, SlotType } from './Slot'
 import { Context } from './Context'
 
 export let current: Slot | null = null
@@ -37,12 +37,13 @@ export class GraphNode extends Konva.Group {
         return label;
     }
 
-    addSlot(slot: number, x: number, y: number, radius: number, color: string, ctx: Context) {
-        let circle = new Slot({
+    addSlot(x: number, y: number, radius: number, color: string, slotType: SlotType, ctx: Context) {
+        let slot = new Slot({
             x: x, y: y, radius: radius / 20,
             fill: color, stroke: 'black', strokeWidth: 2,
+            slotType: slotType
         })
-        circle.on("pointerclick", function() {
+        slot.on("pointerclick", function() {
             if (current == null) {
                 current = this
                 console.log(current)
@@ -53,7 +54,7 @@ export class GraphNode extends Konva.Group {
                 current = null
             }
         })
-        return circle;
+        return slot;
     }
 
     constructor(id: number, x: number, y: number, width: number, height: number, text: string, input_size: number, output_size: number, ctx: Context) {
@@ -69,19 +70,19 @@ export class GraphNode extends Konva.Group {
         for (let i = 0; i < input_size; i++) {
             let pos_y = y + (i + 1) * (height / (input_size + 1))
             let pos_x = x
-            let inputSlot = this.addSlot(i, pos_x, pos_y, height, "red", ctx)
+            let inputSlot = this.addSlot(pos_x, pos_y, height, "red", SlotType.INPUT, ctx)
             this.add(inputSlot)
         }
 
         for (let i = 0; i < output_size; i++) {
             let pos_y = y + (i + 1) * (height / (output_size + 1))
             let pos_x = x + width
-            let outputSlot = this.addSlot(i, pos_x, pos_y, height, "green", ctx)
+            let outputSlot = this.addSlot(pos_x, pos_y, height, "green", SlotType.OUTPUT, ctx)
             this.add(outputSlot)
         }
 
         this.on('dragmove', () => {
-            ctx.updateCable()
+            ctx.updateCables()
         });
 
         this.#box = box
