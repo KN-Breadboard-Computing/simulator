@@ -28,18 +28,21 @@ let v = graph.get_comp(out)
 
 console.log(v)
 
-// import Konva from 'konva'
-// import * as shapes from './shapes.js'
+import Konva from 'konva'
+import * as shapes from './shapes.js'
 
-// var stage = new Konva.Stage({
-//     container: 'container',
-//     width: window.innerWidth,
-//     height: window.innerHeight,
-// });
+var stage = new Konva.Stage({
+    container: 'container',
+    width: window.innerWidth,
+    height: window.innerHeight,
+});
 
-// // add canvas element
-// var layer = new Konva.Layer();
-// stage.add(layer);
+// add canvas element
+var layer = new Konva.Layer();
+stage.add(layer);
 
-// var box = shapes.make_component(20,20,100,200,"test",10,10)
-// layer.add(box)
+var test1 = new shapes.GraphNode(0, 100,100,100,100,"Hello", 2, 1)
+layer.add(test1.group)
+
+var test2 = new shapes.GraphNode(1, 500,100,100,100,"Test", 2, 1)
+layer.add(test2.group)
