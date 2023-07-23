@@ -2,8 +2,9 @@ use serde::{Deserialize, Serialize};
 
 use super::ComponentBehaviour;
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, Default, Serialize, Deserialize)]
 pub struct Constant {
+    #[serde(default)]
     pub state: bool,
 }
 
@@ -23,8 +24,9 @@ impl ComponentBehaviour for Constant {
     }
 }
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, Default, Serialize, Deserialize)]
 pub struct DebugOutput {
+    #[serde(default)]
     pub state: bool,
 }
 
@@ -44,7 +46,7 @@ impl ComponentBehaviour for DebugOutput {
     }
 }
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, Default, Serialize, Deserialize)]
 pub struct Fork;
 
 impl ComponentBehaviour for Fork {

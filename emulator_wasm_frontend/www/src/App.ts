@@ -3,6 +3,8 @@ import { GraphNode } from './GraphNode';
 import { Cable } from './Cable';
 import { Context } from './Context';
 import { Slot } from './Slot';
+import { components } from './component_list';
+import { selected, setup_side_panel } from './side_panel';
 
 export class App {
     componentLayer: Konva.Layer;
@@ -18,20 +20,22 @@ export class App {
     }
 
     async run() {
+        setup_side_panel()
+
         const emulator = await import('emulator');
 
         let graph = emulator.Graph.new()
 
-        let c1 = graph.add_comp({ "Constant" : { "state" : false } })
+        let c1 = graph.add_comp({ "type": "Constant"})
         console.log(c1)
 
-        let c2 = graph.add_comp({ "Constant" : { "state" : false } })
+        let c2 = graph.add_comp({ "type": "Constant", "state" : true})
         console.log(c2)
 
-        let or = graph.add_comp({"Or" : null})
+        let or = graph.add_comp({ "type": "Or" })
         console.log(or)
 
-        let out = graph.add_comp({ "DebugOutput" : { "state" : false } })
+        let out = graph.add_comp({ "type": "DebugOutput"})
         console.log(out)
 
 
@@ -67,6 +71,17 @@ export class App {
     
         var test2 = new GraphNode(1, 500,100,100,100,"Test", 2, 1, context)
         this.componentLayer.add(test2)
+        this.componentLayer.add(test2)
+
+        let app = this
+        stage.on("pointerclick", function () {
+            let pos = stage.getPointerPosition()
+
+            if (selected != null) {
+                var comp = new GraphNode(0, pos.x - selected.component.width/2, pos.y - selected.component.height/2, selected.component.width, selected.component.height, selected.component.type, selected.component.input_size, selected.component.output_size, context)
+                app.componentLayer.add(comp)
+            }
+        })
     }
 
     addCable(a: Slot, b: Slot) {

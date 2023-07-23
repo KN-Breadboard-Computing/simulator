@@ -24,6 +24,7 @@ pub trait ComponentBehaviour: Debug {
 #[enum_dispatch]
 #[rustfmt::skip]
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(tag = "type")]
 pub enum Component {
     And, Or, Xor, Not,
     Fork, DebugOutput, Constant,
