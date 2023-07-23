@@ -11,8 +11,8 @@ export class GraphNode extends Konva.Group {
 
     createBox(width: number, height: number) {
         var box = new Konva.Rect({
-            x: this.getPosition().x,
-            y: this.getPosition().y,
+            x: 0,
+            y: 0,
             width: width,
             height: height,
             fill: 'white',
@@ -24,8 +24,8 @@ export class GraphNode extends Konva.Group {
 
     createLabel(text: string, width: number) {
         var label = new Konva.Text({
-            x: this.getPosition().x,
-            y: this.getPosition().y,
+            x: 0,
+            y: 0,
             text: text,
             fontSize: 18,
             fontFamily: 'Calibri',
@@ -67,15 +67,15 @@ export class GraphNode extends Konva.Group {
         this.add(label)
 
         for (let i = 0; i < input_size; i++) {
-            let pos_y = y + (i + 1) * (height / (input_size + 1))
-            let pos_x = x
+            let pos_y = (i + 1) * (height / (input_size + 1))
+            let pos_x = 0
             let inputSlot = this.addSlot(i, pos_x, pos_y, height, "red", ctx)
             this.add(inputSlot)
         }
 
         for (let i = 0; i < output_size; i++) {
-            let pos_y = y + (i + 1) * (height / (output_size + 1))
-            let pos_x = x + width
+            let pos_y = (i + 1) * (height / (output_size + 1))
+            let pos_x = width
             let outputSlot = this.addSlot(i, pos_x, pos_y, height, "green", ctx)
             this.add(outputSlot)
         }
