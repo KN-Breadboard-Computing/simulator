@@ -6,9 +6,6 @@ import { Context } from './Context'
 export let current: Slot | null = null
 
 export class GraphNode extends Konva.Group {
-    #box: Konva.Rect
-    #label: Konva.Text
-
     createBox(width: number, height: number) {
         var box = new Konva.Rect({
             x: 0,
@@ -44,15 +41,7 @@ export class GraphNode extends Konva.Group {
             slotType: slotType
         })
         slot.on("pointerclick", function() {
-            if (current == null) {
-                current = this
-                console.log(current)
-            } else if (current != this) {
-                ctx.addCable(current, this)
-                current = null
-            } else {
-                current = null
-            }
+            ctx.updateSelectedSlot(this)
         })
         return slot;
     }
@@ -84,8 +73,5 @@ export class GraphNode extends Konva.Group {
         this.on('dragmove', () => {
             ctx.updateCables()
         });
-
-        this.#box = box
-        this.#label = label
     }
 }

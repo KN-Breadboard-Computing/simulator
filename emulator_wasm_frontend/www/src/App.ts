@@ -63,7 +63,7 @@ export class App {
         let context: Context = new Context({
             addCable: this.addCable.bind(this),
             updateCables: this.updateCables.bind(this),
-            updateSelectedSlot: this.updateSelectedSlot
+            updateSelectedSlot: this.updateSelectedSlot.bind(this)
         })
     
         var test1 = new GraphNode(0, 100,100,100,100,"Hello", 2, 1, context);
@@ -102,14 +102,18 @@ export class App {
 
     updateSelectedSlot(clickedSlot: Slot) {
         if (this.selectedSlot == null) {
-            this.selectedSlot = clickedSlot
-            console.log(this.selectedSlot)
+            this.selectSlot(clickedSlot)
         } else if (this.selectedSlot != clickedSlot) {
             this.addCable(this.selectedSlot, clickedSlot)
-            this.selectedSlot = null
+            this.selectSlot(null)
         } else {
-            this.selectedSlot = null
+            this.selectSlot(null)
         }
     }
-    
+
+    selectSlot(slot: Slot) {
+        this.selectedSlot?.deselect();
+        this.selectedSlot = slot;
+        slot?.select();
+    }
 }

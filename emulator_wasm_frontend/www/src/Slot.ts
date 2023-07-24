@@ -12,4 +12,13 @@ export class Slot extends Konva.Circle {
         super(config);
         this.slotType = config.slotType;
     }
+
+    select() {
+        console.log("selected")
+        this.fill('blue')
+    }
+
+    deselect() {
+        this.fill('black')
+    }
 }
