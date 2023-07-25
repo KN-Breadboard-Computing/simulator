@@ -1,14 +1,23 @@
 import Konva from 'konva'
-import { Slot } from './Slot'
+import { OutputValue, Slot } from './Slot'
 
 export class Cable extends Konva.Line {
     parents: [Konva.Shape, Konva.Shape]
     line: Konva.Line
 
-    update() {
+    updatePosition() {
         let parent1pos = this.parents[0].getAbsolutePosition()
         let parent2pos = this.parents[1].getAbsolutePosition()
         this.points([parent1pos.x, parent1pos.y, parent2pos.x, parent2pos.y])
+    }
+
+    updateValue(value: OutputValue) {
+        if(value == OutputValue.ONE) {
+            this.fill("green")
+        }
+        if(value == OutputValue.ZERO || value == OutputValue.UNDEFINED) {
+            this.fill("black")
+        }
     }
 
     constructor(parent1: Slot, parent2: Slot) {

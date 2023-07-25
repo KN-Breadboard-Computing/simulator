@@ -36,14 +36,21 @@ export class InputSlot extends Slot {
     }
 }
 
+export enum OutputValue {
+    ZERO,
+    ONE,
+    UNDEFINED
+}
+
 export class OutputSlot extends Slot {
-    output: boolean;
+    output: OutputValue;
 
     constructor(config: Konva.CircleConfig) {
         super({ ...config, slotType: SlotType.OUTPUT });
     }
 
-    setValue(value: boolean) {
+    setValue(value: OutputValue) {
         this.output = value;
+        this.connection?.updateValue(value)
     }
 }
