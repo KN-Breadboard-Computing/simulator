@@ -9,13 +9,18 @@ export function unselect() {
     selected = null
 }
 
-export function select(to_select: { button : HTMLElement, component: Component}) {
+export function select(to_select: { button: HTMLElement, component: Component}) {
     if (selected != null) {
+        if (selected.button === to_select.button) {
+            unselect()
+            return
+        }
         selected.button.classList.remove("selected")
     }
     to_select.button.classList.add("selected")
     selected = to_select
 }
+
 
 export function setup_side_panel() {
     const button_panel = document.getElementById("button_panel")

@@ -7,6 +7,7 @@ export enum SlotType {
 
 export class Slot extends Konva.Circle {
     slotType: SlotType;
+    initialFill: string
 
     constructor(config: Konva.CircleConfig & { slotType: SlotType }) {
         super(config);
@@ -14,11 +15,11 @@ export class Slot extends Konva.Circle {
     }
 
     select() {
-        console.log("selected")
+        this.initialFill = this.fill()
         this.fill('blue')
     }
 
     deselect() {
-        this.fill('black')
+        this.fill(this.initialFill)
     }
 }

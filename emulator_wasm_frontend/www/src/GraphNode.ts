@@ -1,77 +1,98 @@
-import Konva from 'konva'
-import { Cable } from './Cable'
-import { Slot, SlotType } from './Slot'
-import { Context } from './Context'
+import Konva from 'konva';
+import { Slot, SlotType } from './Slot';
+import { Context } from './Context';
 
-export let current: Slot | null = null
+interface GraphNodeConfig {
+    id: number,
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    text: string,
+    inputSize: number,
+    outputSize: number,
+    context: Context,
+    onHover?: () => void,
+    offHover?: () => void,
+    onClick?: () => void
+}
 
 export class GraphNode extends Konva.Group {
-    createBox(width: number, height: number) {
-        var box = new Konva.Rect({
-            x: 0,
-            y: 0,
-            width: width,
-            height: height,
-            fill: 'white',
-            stroke: 'black',
-            strokeWidth: 4,
-        });
-        return box;
+    private context: Context;
+    private onHover: () => void;
+    private offHover: () => void;
+    private onClick: () => void;
+
+    constructor(config: GraphNodeConfig) {
+        super({ draggable: true });
+        this.setPosition({ x: config.x, y: config.y });
+
+        this.width(config.width);
+        this.height(config.height);
+        this.context = config.context;
+        this.onHover = config.onHover || (() => {});
+        this.offHover = config.offHover || (() => {});
+        this.onClick = config.onClick || (() => {});
+
+        this.add(this.createBox());
+        this.add(this.createLabel(config.text));
+        this.addSlots(config.inputSize, config.outputSize);
+
+        this.on('dragmove', () => this.context.updateCables());
+        this.on('mouseover', this.onHover);
+        this.on('mouseout', this.offHover);
+        this.on('click', this.onClick);
     }
 
-    createLabel(text: string, width: number) {
-        var label = new Konva.Text({
+    private createBox(): Konva.Rect {
+        return new Konva.Rect({
+            x: 0,
+            y: 0,
+            width: this.width(),
+            height: this.height(),
+            fill: 'white',
+            stroke: 'black',
+            strokeWidth: 4
+        });
+    }
+
+    private createLabel(text: string): Konva.Text {
+        return new Konva.Text({
             x: 0,
             y: 0,
             text: text,
             fontSize: 18,
             fontFamily: 'Calibri',
             fill: 'black',
-            width: width,
+            width: this.width(),
             padding: 20,
             align: 'center',
-        })
-        return label;
-    }
-
-    addSlot(x: number, y: number, radius: number, color: string, slotType: SlotType, ctx: Context) {
-        let slot = new Slot({
-            x: x, y: y, radius: radius / 20,
-            fill: color, stroke: 'black', strokeWidth: 2,
-            slotType: slotType
-        })
-        slot.on("pointerclick", function() {
-            ctx.updateSelectedSlot(this)
-        })
-        return slot;
-    }
-
-    constructor(id: number, x: number, y: number, width: number, height: number, text: string, input_size: number, output_size: number, ctx: Context) {
-        super({ draggable: true});
-        this.setPosition({x,y});
-
-        let box = this.createBox(width, height);
-        this.add(box);
-
-        let label = this.createLabel(text, width);
-        this.add(label)
-
-        for (let i = 0; i < input_size; i++) {
-            let pos_y = (i + 1) * (height / (input_size + 1))
-            let pos_x = 0
-            let inputSlot = this.addSlot(pos_x, pos_y, height, "red", SlotType.INPUT, ctx)
-            this.add(inputSlot)
-        }
-
-        for (let i = 0; i < output_size; i++) {
-            let pos_y = (i + 1) * (height / (output_size + 1))
-            let pos_x = width
-            let outputSlot = this.addSlot(pos_x, pos_y, height, "green", SlotType.OUTPUT, ctx)
-            this.add(outputSlot)
-        }
-
-        this.on('dragmove', () => {
-            ctx.updateCables()
         });
+    }
+
+    private addSlots(inputSize: number, outputSize: number): void {
+        for (let i = 0; i < inputSize; i++) {
+            this.add(this.createSlot(i, inputSize, 0, "red", SlotType.INPUT));
+        }
+
+        for (let i = 0; i < outputSize; i++) {
+            this.add(this.createSlot(i, outputSize, this.width(), "green", SlotType.OUTPUT));
+        }
+    }
+
+    private createSlot(i: number, total: number, x: number, color: string, type: SlotType): Slot {
+        const y = (i + 1) * (this.height() / (total + 1));
+        const slot = new Slot({
+            x: x,
+            y: y,
+            radius: this.height() / 20,
+            fill: color,
+            stroke: 'black',
+            strokeWidth: 2,
+            slotType: type
+        });
+        
+        slot.on('click', () => this.context.updateSelectedSlot(slot));
+        return slot;
     }
 }

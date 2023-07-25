@@ -66,10 +66,30 @@ export class App {
             updateSelectedSlot: this.updateSelectedSlot.bind(this)
         })
     
-        var test1 = new GraphNode(0, 100,100,100,100,"Hello", 2, 1, context);
+        var test1 = new GraphNode({
+            id: 0,
+            x: 100,
+            y: 100,
+            width: 100,
+            height: 100,
+            text: "Hello",
+            inputSize: 2,
+            outputSize: 1,
+            context: context
+        });
         this.componentLayer.add(test1)
     
-        var test2 = new GraphNode(1, 500,100,100,100,"Test", 2, 1, context)
+        var test2 = new GraphNode({
+            id: 1,
+            x: 500,
+            y: 100,
+            width: 100,
+            height: 100,
+            text: "Test",
+            inputSize: 2,
+            outputSize: 1,
+            context: context
+        })
         this.componentLayer.add(test2)
         this.componentLayer.add(test2)
 
@@ -78,20 +98,37 @@ export class App {
             let pos = stage.getPointerPosition()
 
             if (selected != null) {
-                var comp = new GraphNode(0, pos.x - selected.component.width/2, pos.y - selected.component.height/2, selected.component.width, selected.component.height, selected.component.type, selected.component.input_size, selected.component.output_size, context)
+                var comp = new GraphNode({
+                    id: 0,
+                    x: pos.x - selected.component.width / 2,
+                    y: pos.y - selected.component.height / 2,
+                    width: selected.component.width,
+                    height: selected.component.height,
+                    text: selected.component.type,
+                    inputSize: selected.component.input_size,
+                    outputSize: selected.component.output_size,
+                    context: context
+                })
                 app.componentLayer.add(comp)
             }
         })
     }
 
     addCable(a: Slot, b: Slot) {
-        if(a.slotType == b.slotType) {
-            console.error("Can't connect slots of the same type");
+        if(!this.areSlotsCompatible(a,b)) {
+            // console.error("Can't connect slots of the same type");
             return;
         }
         let cable = new Cable(a,b);
         this.cables.push(cable)
         this.cableLayer.add(cable)
+    }
+
+    areSlotsCompatible(a: Slot, b: Slot) {
+        if(a.slotType == b.slotType) {
+            return false;
+        }
+        return true;
     }
 
     updateCables() {
@@ -104,6 +141,10 @@ export class App {
         if (this.selectedSlot == null) {
             this.selectSlot(clickedSlot)
         } else if (this.selectedSlot != clickedSlot) {
+            if (!this.areSlotsCompatible(clickedSlot, this.selectedSlot)) {
+                this.selectSlot(clickedSlot)
+                return;
+            }
             this.addCable(this.selectedSlot, clickedSlot)
             this.selectSlot(null)
         } else {
