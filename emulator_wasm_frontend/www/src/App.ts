@@ -21,6 +21,7 @@ export class App {
         this.componentLayer = new Konva.Layer();
         this.cableLayer = new Konva.Layer();
         this.cables = []
+        this.nodes = []
         this.selectedSlot = null
     }
 
@@ -92,7 +93,7 @@ export class App {
 
     updateCables() {
         for(var cable of this.cables) {
-            cable.update()
+            cable.updatePosition()
         }
     }
 
