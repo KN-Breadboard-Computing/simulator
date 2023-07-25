@@ -1,14 +1,17 @@
 import Konva from 'konva';
-import { GraphNode } from './GraphNode';
+import { GraphNode, GraphNodeConfig } from './GraphNode';
 import { Cable } from './Cable';
 import { Context } from './Context';
 import { Slot } from './Slot';
 import { components } from './component_list';
 import { selected, setup_side_panel } from './side_panel';
+import { Vector2d } from 'konva/lib/types';
 
 export class App {
     componentLayer: Konva.Layer;
     cableLayer: Konva.Layer;
+
+    nodes: GraphNode[]
     cables: Cable[]
     selectedSlot: Slot | null
 
@@ -66,7 +69,7 @@ export class App {
             updateSelectedSlot: this.updateSelectedSlot.bind(this)
         })
     
-        var test1 = new GraphNode({
+        this.addNode({
             id: 0,
             x: 100,
             y: 100,
@@ -76,10 +79,9 @@ export class App {
             inputSize: 2,
             outputSize: 1,
             context: context
-        });
-        this.componentLayer.add(test1)
-    
-        var test2 = new GraphNode({
+        })
+
+        this.addNode({
             id: 1,
             x: 500,
             y: 100,
@@ -90,15 +92,13 @@ export class App {
             outputSize: 1,
             context: context
         })
-        this.componentLayer.add(test2)
-        this.componentLayer.add(test2)
 
         let app = this
         stage.on("pointerclick", function () {
             let pos = stage.getPointerPosition()
 
             if (selected != null) {
-                var comp = new GraphNode({
+                app.addNode({
                     id: 0,
                     x: pos.x - selected.component.width / 2,
                     y: pos.y - selected.component.height / 2,
@@ -109,9 +109,14 @@ export class App {
                     outputSize: selected.component.output_size,
                     context: context
                 })
-                app.componentLayer.add(comp)
             }
         })
+    }
+
+    addNode(config: GraphNodeConfig) {
+        let comp = new GraphNode(config)
+        this.nodes.push(comp)
+        this.componentLayer.add(comp)
     }
 
     addCable(a: Slot, b: Slot) {

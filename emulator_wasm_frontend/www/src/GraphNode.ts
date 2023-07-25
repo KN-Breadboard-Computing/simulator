@@ -2,7 +2,7 @@ import Konva from 'konva';
 import { InputSlot, OutputSlot, Slot, SlotType } from './Slot';
 import { Context } from './Context';
 
-interface GraphNodeConfig {
+export interface GraphNodeConfig {
     id: number,
     x: number,
     y: number,
