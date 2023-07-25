@@ -1,34 +1,28 @@
-import Konva from 'konva'
-import { OutputValue, Slot } from './Slot'
+import Konva from 'konva';
+import { OutputValue, Slot } from './Slot';
 
 export class Cable extends Konva.Line {
-    parents: [Konva.Shape, Konva.Shape]
-    line: Konva.Line
-
-    updatePosition() {
-        let parent1pos = this.parents[0].getAbsolutePosition()
-        let parent2pos = this.parents[1].getAbsolutePosition()
-        this.points([parent1pos.x, parent1pos.y, parent2pos.x, parent2pos.y])
-    }
-
-    updateValue(value: OutputValue) {
-        if(value == OutputValue.ONE) {
-            this.fill("green")
-        }
-        if(value == OutputValue.ZERO || value == OutputValue.UNDEFINED) {
-            this.fill("black")
-        }
-    }
+    parents: [Slot, Slot];
 
     constructor(parent1: Slot, parent2: Slot) {
-        let parent1pos = parent1.getAbsolutePosition()
-        let parent2pos = parent2.getAbsolutePosition()
+        const parent1pos = parent1.getAbsolutePosition();
+        const parent2pos = parent2.getAbsolutePosition();
         super({
             points: [parent1pos.x, parent1pos.y, parent2pos.x, parent2pos.y],
             stroke: 'black'
-        })
+        });
+
         this.parents = [parent1, parent2];
-        parent1.connect(this)
-        parent2.connect(this)
+        parent1.connect(this);
+        parent2.connect(this);
+    }
+
+    updatePosition(): void {
+        const [parent1, parent2] = this.parents.map(parent => parent.getAbsolutePosition());
+        this.points([parent1.x, parent1.y, parent2.x, parent2.y]);
+    }
+
+    updateValue(value: OutputValue): void {
+        this.fill(value === OutputValue.ONE ? 'green' : 'black');
     }
 }
