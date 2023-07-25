@@ -13,6 +13,7 @@ pub struct NodeId(InnerNodeId);
 #[wasm_bindgen]
 impl Graph {
     pub fn new() -> Graph {
+        console_error_panic_hook::set_once();
         Graph(InnerGraph::new())
     }
 
@@ -50,11 +51,11 @@ impl Graph {
     }
 
     pub fn output_state(&self, node: &NodeId) -> usize {
-        self.0.outputs[node.0].as_raw_slice()[0]
+        *self.0.outputs[node.0].as_raw_slice().first().unwrap_or(&0)
     }
 
     pub fn input_state(&self, node: &NodeId) -> usize {
-        self.0.inputs[node.0].as_raw_slice()[0]
+        *self.0.inputs[node.0].as_raw_slice().first().unwrap_or(&0)
     }
 }
 

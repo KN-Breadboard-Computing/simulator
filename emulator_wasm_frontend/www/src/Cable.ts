@@ -13,10 +13,10 @@ export class Cable extends Konva.Line {
 
     updateValue(value: OutputValue) {
         if(value == OutputValue.ONE) {
-            this.fill("green")
+            this.stroke("green")
         }
         if(value == OutputValue.ZERO || value == OutputValue.UNDEFINED) {
-            this.fill("black")
+            this.stroke("black")
         }
     }
 

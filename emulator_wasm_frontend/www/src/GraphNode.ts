@@ -105,9 +105,9 @@ export class GraphNode extends Konva.Group {
         let slot: InputSlot | OutputSlot;
     
         if(type === SlotType.OUTPUT) {
-            slot = new OutputSlot(config);
+            slot = new OutputSlot(config, this.node_id, i);
         } else {
-            slot = new InputSlot(config);
+            slot = new InputSlot(config, this.node_id, i);
         }
 
         slot.on('click', () => this.context.updateSelectedSlot(slot));

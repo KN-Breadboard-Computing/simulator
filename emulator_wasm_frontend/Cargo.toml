@@ -9,6 +9,7 @@ edition = "2021"
 crate-type = ["cdylib"]
 
 [dependencies]
+console_error_panic_hook = "0.1.7"
 emulator_core = { path = "../emulator_core" }
 enum_dispatch = "0.3.12"
 js-sys = "0.3.64"
