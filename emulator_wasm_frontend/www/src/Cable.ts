@@ -1,4 +1,5 @@
 import Konva from 'konva'
+import { Slot } from './Slot'
 
 export class Cable extends Konva.Line {
     parents: [Konva.Shape, Konva.Shape]
@@ -10,7 +11,7 @@ export class Cable extends Konva.Line {
         this.points([parent1pos.x, parent1pos.y, parent2pos.x, parent2pos.y])
     }
 
-    constructor(parent1: Konva.Shape, parent2: Konva.Shape) {
+    constructor(parent1: Slot, parent2: Slot) {
         let parent1pos = parent1.getAbsolutePosition()
         let parent2pos = parent2.getAbsolutePosition()
         super({
@@ -18,5 +19,7 @@ export class Cable extends Konva.Line {
             stroke: 'black'
         })
         this.parents = [parent1, parent2];
+        parent1.connect(this)
+        parent2.connect(this)
     }
 }

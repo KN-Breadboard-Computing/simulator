@@ -1,5 +1,5 @@
 import Konva from 'konva';
-import { Slot, SlotType } from './Slot';
+import { InputSlot, OutputSlot, Slot, SlotType } from './Slot';
 import { Context } from './Context';
 
 interface GraphNodeConfig {
@@ -22,6 +22,9 @@ export class GraphNode extends Konva.Group {
     private onHover: () => void;
     private offHover: () => void;
     private onClick: () => void;
+
+    inputSlots: InputSlot[] = [];
+    outputSlots: OutputSlot[] = [];
 
     constructor(config: GraphNodeConfig) {
         super({ draggable: true });
@@ -72,26 +75,36 @@ export class GraphNode extends Konva.Group {
 
     private addSlots(inputSize: number, outputSize: number): void {
         for (let i = 0; i < inputSize; i++) {
-            this.add(this.createSlot(i, inputSize, 0, "red", SlotType.INPUT));
+            let slot = this.createSlot(i, inputSize, 0, "red", SlotType.INPUT);
+            this.add(slot);
+            this.inputSlots.push(slot as InputSlot);
         }
 
         for (let i = 0; i < outputSize; i++) {
-            this.add(this.createSlot(i, outputSize, this.width(), "green", SlotType.OUTPUT));
+            let slot = this.createSlot(i, outputSize, this.width(), "green", SlotType.OUTPUT);
+            this.add(slot);
+            this.outputSlots.push(slot as OutputSlot);
         }
     }
 
-    private createSlot(i: number, total: number, x: number, color: string, type: SlotType): Slot {
+    private createSlot(i: number, total: number, x: number, color: string, type: SlotType): InputSlot | OutputSlot {
         const y = (i + 1) * (this.height() / (total + 1));
-        const slot = new Slot({
+        const config = {
             x: x,
             y: y,
             radius: this.height() / 20,
             fill: color,
             stroke: 'black',
-            strokeWidth: 2,
-            slotType: type
-        });
-        
+            strokeWidth: 2
+        }
+        let slot: InputSlot | OutputSlot;
+    
+        if(type === SlotType.OUTPUT) {
+            slot = new OutputSlot(config);
+        } else {
+            slot = new InputSlot(config);
+        }
+
         slot.on('click', () => this.context.updateSelectedSlot(slot));
         return slot;
     }
