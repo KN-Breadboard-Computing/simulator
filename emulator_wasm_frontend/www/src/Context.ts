@@ -1,19 +1,19 @@
 import { Slot } from "./Slot"
 
-type ContextConfig = Partial<{
-    addCable: Function;
-    updateCables: Function;
-    updateSelectedSlot: Function
-}>;
+interface ContextConfig {
+    addCable?: (a: Slot, b: Slot) => void;
+    updateCables?: () => void;
+    updateSelectedSlot?: (slot: Slot) => void;
+};
 
 export class Context {
-    addCable: Function
-    updateCables: Function
-    updateSelectedSlot: Function
+    addCable: (a: Slot, b: Slot) => void;
+    updateCables: () => void;
+    updateSelectedSlot: (slot: Slot) => void;
 
-    constructor(config: ContextConfig) {
-        this.addCable = config.addCable
-        this.updateCables = config.updateCables
-        this.updateSelectedSlot = config.updateSelectedSlot
+    constructor(config: ContextConfig = {}) {
+        this.addCable = config.addCable || (() => {});
+        this.updateCables = config.updateCables || (() => {});
+        this.updateSelectedSlot = config.updateSelectedSlot || (() => {});
     }
 }
