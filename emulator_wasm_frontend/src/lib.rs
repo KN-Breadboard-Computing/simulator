@@ -48,6 +48,14 @@ impl Graph {
     pub fn propagate(&mut self, start: &NodeId) {
         self.0.propagate_from(start.0)
     }
+
+    pub fn output_state(&self, node: &NodeId) -> usize {
+        self.0.outputs[node.0].as_raw_slice()[0]
+    }
+
+    pub fn input_state(&self, node: &NodeId) -> usize {
+        self.0.inputs[node.0].as_raw_slice()[0]
+    }
 }
 
 impl Default for Graph {
