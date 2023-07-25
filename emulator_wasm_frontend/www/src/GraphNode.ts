@@ -1,9 +1,10 @@
 import Konva from 'konva';
 import { InputSlot, OutputSlot, Slot, SlotType } from './Slot';
 import { Context } from './Context';
+import { NodeId } from 'emulator';
 
 export interface GraphNodeConfig {
-    id: number,
+    node_id: NodeId,
     x: number,
     y: number,
     width: number,
@@ -23,11 +24,15 @@ export class GraphNode extends Konva.Group {
     private offHover: () => void;
     private onClick: () => void;
 
+    node_id: NodeId;
     inputSlots: InputSlot[] = [];
     outputSlots: OutputSlot[] = [];
 
     constructor(config: GraphNodeConfig) {
         super({ draggable: true });
+
+        this.node_id = config.node_id
+
         this.setPosition({ x: config.x, y: config.y });
 
         this.width(config.width);
