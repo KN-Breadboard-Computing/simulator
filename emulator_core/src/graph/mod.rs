@@ -11,9 +11,9 @@ pub mod id;
 
 #[derive(Debug)]
 pub struct Graph {
-    nodes: SlotMap<NodeId, Node>,
-    inputs: SecondaryMap<NodeId, BitVec>,
-    outputs: SecondaryMap<NodeId, BitVec>,
+    pub nodes: SlotMap<NodeId, Node>,
+    pub inputs: SecondaryMap<NodeId, BitVec>,
+    pub outputs: SecondaryMap<NodeId, BitVec>,
 }
 
 impl Graph {
