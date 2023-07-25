@@ -6,11 +6,13 @@ import { Slot } from './Slot';
 import { components } from './component_list';
 import { selected, setup_side_panel } from './side_panel';
 import { Vector2d } from 'konva/lib/types';
+import { Graph, NodeId } from 'emulator';
 
 export class App {
     componentLayer: Konva.Layer;
     cableLayer: Konva.Layer;
 
+    graph: Graph
     nodes: GraphNode[]
     cables: Cable[]
     selectedSlot: Slot | null
@@ -27,32 +29,7 @@ export class App {
 
         const emulator = await import('emulator');
 
-        let graph = emulator.Graph.new()
-
-        let c1 = graph.add_comp({ "type": "Constant"})
-        console.log(c1)
-
-        let c2 = graph.add_comp({ "type": "Constant", "state" : true})
-        console.log(c2)
-
-        let or = graph.add_comp({ "type": "Or" })
-        console.log(or)
-
-        let out = graph.add_comp({ "type": "DebugOutput"})
-        console.log(out)
-
-
-        graph.add_conn(c1, 0, or, 0)
-        graph.add_conn(c2, 0, or, 1)
-
-        graph.add_conn(or, 0, out, 0)
-
-        graph.propagate(c1)
-        graph.propagate(c2)
-
-        let v = graph.get_comp(out)
-
-        console.log(v)
+        this.graph = emulator.Graph.new()
 
         var stage = new Konva.Stage({
             container: 'container',
@@ -69,29 +46,6 @@ export class App {
             updateSelectedSlot: this.updateSelectedSlot.bind(this)
         })
     
-        this.addNode({
-            id: 0,
-            x: 100,
-            y: 100,
-            width: 100,
-            height: 100,
-            text: "Hello",
-            inputSize: 2,
-            outputSize: 1,
-            context: context
-        })
-
-        this.addNode({
-            id: 1,
-            x: 500,
-            y: 100,
-            width: 100,
-            height: 100,
-            text: "Test",
-            inputSize: 2,
-            outputSize: 1,
-            context: context
-        })
 
         let app = this
         stage.on("pointerclick", function () {
@@ -99,7 +53,7 @@ export class App {
 
             if (selected != null) {
                 app.addNode({
-                    id: 0,
+                    node_id: app.graph.add_comp({"type" : selected.component.type}),
                     x: pos.x - selected.component.width / 2,
                     y: pos.y - selected.component.height / 2,
                     width: selected.component.width,
@@ -161,5 +115,22 @@ export class App {
         this.selectedSlot?.deselect();
         this.selectedSlot = slot;
         slot?.select();
+    }
+
+    propagate(node_id: NodeId) {
+        this.graph.propagate(node_id)
+        this.updateAllNodes()
+    }
+
+    updateAllNodes() {
+        for (const node of this.nodes) {
+            let output_state = this.graph.output_state(node.node_id)
+
+            for (const output of node.outputSlots) {
+                let bit = output_state & 1
+                output_state = output_state >> 1
+                output.setValue(bit == 1)
+            }
+        }
     }
 }
