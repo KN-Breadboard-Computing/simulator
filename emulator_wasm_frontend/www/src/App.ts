@@ -7,11 +7,13 @@ import { components } from './component_list';
 import { selected, setup_side_panel } from './side_panel';
 import { Vector2d } from 'konva/lib/types';
 import { Graph, NodeId } from 'emulator';
+import { Grid } from './Grid';
 
 export class App {
     componentLayer: Konva.Layer;
     cableLayer: Konva.Layer;
 
+    grid: Grid;
     graph: Graph
     nodes: GraphNode[]
     cables: Cable[]
@@ -41,6 +43,8 @@ export class App {
         stage.add(this.componentLayer);
         stage.add(this.cableLayer);
 
+        this.grid = new Grid(this.componentLayer, 20)
+
         let context: Context = new Context({
             addCable: this.addCable.bind(this),
             updateCables: this.updateCables.bind(this),
@@ -62,7 +66,8 @@ export class App {
                     text: selected.component.type,
                     inputSize: selected.component.input_size,
                     outputSize: selected.component.output_size,
-                    context: context
+                    context: context,
+                    snapToGrid: app.grid.snapToGrid.bind(app.grid)
                 })
             }
         })

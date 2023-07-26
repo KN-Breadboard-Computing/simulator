@@ -15,7 +15,8 @@ export interface GraphNodeConfig {
     context: Context,
     onHover?: () => void,
     offHover?: () => void,
-    onClick?: () => void
+    onClick?: () => void,
+    snapToGrid?: (pos: Konva.Vector2d) => Konva.Vector2d
 }
 
 export class GraphNode extends Konva.Group {
@@ -29,7 +30,7 @@ export class GraphNode extends Konva.Group {
     outputSlots: OutputSlot[] = [];
 
     constructor(config: GraphNodeConfig) {
-        super({ draggable: true });
+        super({ draggable: true, dragBoundFunc: config.snapToGrid });
 
         this.node_id = config.node_id
 
