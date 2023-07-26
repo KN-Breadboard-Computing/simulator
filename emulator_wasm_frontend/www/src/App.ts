@@ -12,6 +12,7 @@ import { Grid } from './Grid';
 export class App {
     componentLayer: Konva.Layer;
     cableLayer: Konva.Layer;
+    gridLayer: Konva.Layer;
 
     grid: Grid;
     graph: Graph
@@ -22,6 +23,7 @@ export class App {
     constructor() {
         this.componentLayer = new Konva.Layer();
         this.cableLayer = new Konva.Layer();
+        this.gridLayer = new Konva.Layer();
         this.cables = []
         this.nodes = []
         this.selectedSlot = null
@@ -40,10 +42,11 @@ export class App {
             height: window.innerHeight,
         });
 
-        stage.add(this.componentLayer);
+        stage.add(this.gridLayer)
         stage.add(this.cableLayer);
+        stage.add(this.componentLayer);
 
-        this.grid = new Grid(this.componentLayer, 20)
+        this.grid = new Grid(this.gridLayer, 20)
 
         let context: Context = new Context({
             addCable: this.addCable.bind(this),
