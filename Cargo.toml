@@ -1,2 +1,2 @@
 [workspace]
-members = ["emulator_core", "emulator_wasm_frontend"]
+members = ["emulator_core", "emulator_web"]
