@@ -1,6 +1,6 @@
-import { Component, components } from "./component_list"
+import { ComponentInfo, components } from "./component_list"
 
-export var selected : { button: HTMLElement, component: Component} = null
+export var selected : { button: HTMLElement, component: ComponentInfo} = null
 
 export function unselect() {
     if (selected != null) {
@@ -9,7 +9,7 @@ export function unselect() {
     selected = null
 }
 
-export function select(to_select: { button: HTMLElement, component: Component}) {
+export function select(to_select: { button: HTMLElement, component: ComponentInfo}) {
     if (selected != null) {
         if (selected.button === to_select.button) {
             unselect()

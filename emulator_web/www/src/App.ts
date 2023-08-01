@@ -51,7 +51,9 @@ export class App {
         let context: Context = new Context({
             addCable: this.addCable.bind(this),
             updateCables: this.updateCables.bind(this),
-            updateSelectedSlot: this.updateSelectedSlot.bind(this)
+            updateSelectedSlot: this.updateSelectedSlot.bind(this),
+            fetchFn: this.fetchFn.bind(this),
+            updateFn: this.updateFn.bind(this),
         })
     
 
@@ -64,11 +66,7 @@ export class App {
                     node_id: app.graph.add_comp({"type" : selected.component.type}),
                     x: pos.x - selected.component.width / 2,
                     y: pos.y - selected.component.height / 2,
-                    width: selected.component.width,
-                    height: selected.component.height,
-                    text: selected.component.type,
-                    inputSize: selected.component.input_size,
-                    outputSize: selected.component.output_size,
+                    componentInfo: selected.component,
                     context: context,
                     snapToGrid: app.grid.snapToGrid.bind(app.grid)
                 })
@@ -135,6 +133,15 @@ export class App {
         }
     }
 
+    fetchFn(node_id: NodeId) : any {
+        return this.graph.get_comp(node_id)
+    }
+
+    updateFn(node_id: NodeId, state: { type: string }) {
+        this.graph.set_comp(node_id, state)
+        this.propagate(node_id)
+    }
+
     selectSlot(slot: Slot) {
         this.selectedSlot?.deselect();
         this.selectedSlot = slot;
@@ -148,13 +155,15 @@ export class App {
 
     updateAllNodes() {
         for (const node of this.nodes) {
-            let output_state = this.graph.output_state(node.node_id)
+            node.updateNodeState()
+
+            let output_state = this.graph.output_state(node.nodeId)
 
             for (const output of node.outputSlots) {
                 let bit = output_state & 1
                 output_state = output_state >> 1
                 output.setValue(bit == 1 ? OutputValue.ONE : OutputValue.ZERO)
-                console.log("Updated output", node.node_id, output.slot_id, bit, bit == 1)
+                console.log("Updated output", node.nodeId, output.slot_id, bit, bit == 1)
             }
         }
     }

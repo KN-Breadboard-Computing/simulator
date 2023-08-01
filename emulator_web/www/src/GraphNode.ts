@@ -2,16 +2,13 @@ import Konva from 'konva';
 import { InputSlot, OutputSlot, Slot, SlotType } from './Slot';
 import { Context } from './Context';
 import { NodeId } from 'emulator';
+import { ComponentInfo } from './component_list';
 
 export interface GraphNodeConfig {
     node_id: NodeId,
     x: number,
     y: number,
-    width: number,
-    height: number,
-    text: string,
-    inputSize: number,
-    outputSize: number,
+    componentInfo: ComponentInfo,
     context: Context,
     onHover?: () => void,
     offHover?: () => void,
@@ -25,32 +22,41 @@ export class GraphNode extends Konva.Group {
     private offHover: () => void;
     private onClick: () => void;
 
-    node_id: NodeId;
+    nodeId: NodeId;
+    componentInfo: ComponentInfo;
     inputSlots: InputSlot[] = [];
     outputSlots: OutputSlot[] = [];
 
     constructor(config: GraphNodeConfig) {
         super({ draggable: true, dragBoundFunc: config.snapToGrid });
 
-        this.node_id = config.node_id
+        this.nodeId = config.node_id
+        this.componentInfo = config.componentInfo
 
         this.setPosition({ x: config.x, y: config.y });
 
-        this.width(config.width);
-        this.height(config.height);
+        this.width(config.componentInfo.width);
+        this.height(config.componentInfo.height);
         this.context = config.context;
-        this.onHover = config.onHover || (() => {});
-        this.offHover = config.offHover || (() => {});
-        this.onClick = config.onClick || (() => {});
+        this.onHover = config.onHover || (() => { });
+        this.offHover = config.offHover || (() => { });
+        this.onClick = config.onClick || (() => { });
 
         this.add(this.createBox());
-        this.add(this.createLabel(config.text));
-        this.addSlots(config.inputSize, config.outputSize);
+        //this.add(this.createLabel(config.text));
+        this.componentInfo.on_start(() => { return this.context.fetchFn(this.nodeId) }, (a) => { this.context.updateFn(this.nodeId, { type: this.componentInfo.type, ...a }) }, { group: this })
+
+        this.addSlots(config.componentInfo.inputSize, config.componentInfo.outputSize);
 
         this.on('dragmove', () => this.context.updateCables());
         this.on('mouseover', this.onHover);
         this.on('mouseout', this.offHover);
         this.on('click', this.onClick);
+    }
+
+    updateNodeState() {
+        console.log("aaa")
+        this.componentInfo.on_update(() => { return this.context.fetchFn(this.nodeId) }, (a) => { this.context.updateFn(this.nodeId, { type: this.componentInfo.type, ...a }) }, { group: this })
     }
 
     private createBox(): Konva.Rect {
@@ -104,11 +110,11 @@ export class GraphNode extends Konva.Group {
             strokeWidth: 2
         }
         let slot: InputSlot | OutputSlot;
-    
-        if(type === SlotType.OUTPUT) {
-            slot = new OutputSlot(config, this.node_id, i);
+
+        if (type === SlotType.OUTPUT) {
+            slot = new OutputSlot(config, this.nodeId, i);
         } else {
-            slot = new InputSlot(config, this.node_id, i);
+            slot = new InputSlot(config, this.nodeId, i);
         }
 
         slot.on('click', () => this.context.updateSelectedSlot(slot));
