@@ -104,7 +104,7 @@ export class GraphNode extends Konva.Group {
         const config = {
             x: x,
             y: y,
-            radius: this.height() / 20,
+            radius: 5,
             fill: color,
             stroke: 'black',
             strokeWidth: 2
