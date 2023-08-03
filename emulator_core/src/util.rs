@@ -7,7 +7,7 @@ macro_rules! impl_comp_as_ref {
                     if let Component::$t(inner) = self {
                         inner
                     } else {
-                        panic!("Wrong cast, this component is not of this type")
+                        panic!("Wrong cast, this component ({:?}) is not of correct type ({})", self, stringify!($t))
                     }
                 }
             }
@@ -16,7 +16,7 @@ macro_rules! impl_comp_as_ref {
                     if let Component::$t(inner) = self {
                         inner
                     } else {
-                        panic!("Wrong cast, this component is not of this type")
+                        panic!("Wrong cast, this component ({:?}) is not of correct type ({})", self, stringify!($t))
                     }
                 }
             }
