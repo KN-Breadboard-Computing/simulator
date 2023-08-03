@@ -2,6 +2,8 @@
 <html>
   <head>
     <meta charset="utf-8">
+    <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.no-icons.min.css" rel="stylesheet">
+    <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
     <title>Emulator</title>
     <style>
       #main {
@@ -45,14 +47,13 @@
       #menu {
         display: none;
         position: absolute;
-        width: 60px;
         background-color: white;
         box-shadow: 0 0 5px grey;
         border-radius: 3px;
       }
 
       #menu button {
-        width: 100%;
+        width: auto;
         background-color: white;
         border: none;
         margin: 0;
@@ -75,8 +76,12 @@
       <div id="container"></div>
       <div id="menu">
         <div>
-          <button id="rotate-button">Rotate</button>
-          <button id="delete-button">Delete</button>
+          <button id="rotate-button">
+            <i class="icon-repeat"></i>
+          </button>
+          <button id="delete-button">
+            <i class="icon-remove"></i>
+          </button>
         </div>
       </div>
     </div>
