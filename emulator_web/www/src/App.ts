@@ -67,8 +67,8 @@ export class App {
             if (selected != null) {
                 app.addNode({
                     node_id: app.graph.add_comp({"type" : selected.component.type}),
-                    x: pos.x - selected.component.width / 2,
-                    y: pos.y - selected.component.height / 2,
+                    x: pos.x,
+                    y: pos.y,
                     componentInfo: selected.component,
                     context: context,
                     snapToGrid: app.grid.getSnapToGridFunc().bind(app.grid)

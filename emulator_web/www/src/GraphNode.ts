@@ -28,7 +28,7 @@ export class GraphNode extends Konva.Group {
     outputSlots: OutputSlot[] = [];
 
     constructor(config: GraphNodeConfig) {
-        super({ draggable: true, dragBoundFunc: config.snapToGrid });
+        super({ draggable: true, dragBoundFunc: config.snapToGrid , offset: {x : config.componentInfo.width/2, y: config.componentInfo.height/2}});
 
         this.nodeId = config.node_id
         this.componentInfo = config.componentInfo
