@@ -71,7 +71,7 @@ export class App {
                     y: pos.y - selected.component.height / 2,
                     componentInfo: selected.component,
                     context: context,
-                    snapToGrid: app.grid.snapToGrid.bind(app.grid)
+                    snapToGrid: app.grid.getSnapToGridFunc().bind(app.grid)
                 })
             }
         })
@@ -87,7 +87,7 @@ export class App {
         let topLeftX = boundingBox.x + boundingBox.width / 2;
         let topLeftY = boundingBox.y + boundingBox.height / 2;
 
-        comp.position(this.grid.snapToGrid({ x: topLeftX, y: topLeftY }, Math.floor))
+        comp.position(this.grid.getSnapToGridFunc(Math.floor)({ x: topLeftX, y: topLeftY }))
         this.nodes.push(comp)
         this.componentLayer.add(comp)
 

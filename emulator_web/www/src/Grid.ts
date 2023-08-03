@@ -32,10 +32,11 @@ export class Grid {
         }
     }
 
-    snapToGrid(pos: Konva.Vector2d, transform: (number) => number = Math.round): Konva.Vector2d {
-        return {
+    getSnapToGridFunc(transform: (num: number) => number = Math.round):
+    (pos: Konva.Vector2d) => Konva.Vector2d {
+        return (pos: Konva.Vector2d) => ({
             x: transform(pos.x / this.spacing) * this.spacing,
             y: transform(pos.y / this.spacing) * this.spacing,
-        };
+        });
     }
 }

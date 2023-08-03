@@ -11,6 +11,7 @@ export class Cable extends Konva.Line {
             points: [parent1pos.x, parent1pos.y, parent2pos.x, parent2pos.y],
             stroke: 'black'
         });
+        this.strokeWidth(5)
 
         this.parents = [parent1, parent2];
         parent1.connect(this);
