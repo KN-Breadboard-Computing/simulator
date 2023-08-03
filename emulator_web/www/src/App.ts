@@ -8,6 +8,7 @@ import { selected, setup_side_panel } from './side_panel';
 import { Vector2d } from 'konva/lib/types';
 import { Graph, NodeId } from 'emulator';
 import { Grid } from './Grid';
+import { Stage } from 'konva/lib/Stage';
 
 export class App {
     componentLayer: Konva.Layer;
@@ -18,7 +19,11 @@ export class App {
     graph: Graph
     nodes: GraphNode[]
     cables: Cable[]
+
     selectedSlot: Slot | null
+    currentPopupComponent: GraphNode | null
+
+    stage: Stage
 
     constructor() {
         this.componentLayer = new Konva.Layer();
@@ -27,6 +32,11 @@ export class App {
         this.cables = []
         this.nodes = []
         this.selectedSlot = null
+        this.stage = new Konva.Stage({
+            container: 'container',
+            width: window.innerWidth,
+            height: window.innerHeight,
+        });
     }
 
     async run() {
@@ -36,15 +46,9 @@ export class App {
 
         this.graph = emulator.Graph.new()
 
-        var stage = new Konva.Stage({
-            container: 'container',
-            width: window.innerWidth,
-            height: window.innerHeight,
-        });
-
-        stage.add(this.gridLayer)
-        stage.add(this.cableLayer);
-        stage.add(this.componentLayer);
+        this.stage.add(this.gridLayer)
+        this.stage.add(this.cableLayer);
+        this.stage.add(this.componentLayer);
 
         this.grid = new Grid(this.gridLayer, 20)
 
@@ -56,10 +60,9 @@ export class App {
             updateFn: this.updateFn.bind(this),
         })
     
-
         let app = this
-        stage.on("pointerclick", function () {
-            let pos = stage.getPointerPosition()
+        this.stage.on("pointerclick", function () {
+            let pos = app.stage.getPointerPosition()
 
             if (selected != null) {
                 app.addNode({
@@ -72,6 +75,8 @@ export class App {
                 })
             }
         })
+
+        this.setupPopupMenu()
     }
 
     addNode(config: GraphNodeConfig) {
@@ -166,5 +171,39 @@ export class App {
                 console.log("Updated output", node.nodeId, output.slot_id, bit, bit == 1)
             }
         }
+    }
+
+    setupPopupMenu() {
+        let app = this
+        var menuNode = document.getElementById('menu');
+        document.getElementById('rotate-button').addEventListener('click', () => {
+            this.currentPopupComponent.rotate(90)
+        });
+
+        document.getElementById('delete-button').addEventListener('click', () => {
+            this.currentPopupComponent.destroy()
+          });
+    
+        window.addEventListener('click', () => {
+        // hide menu
+            menuNode.style.display = 'none';
+        });
+
+        this.stage.on('contextmenu', function (e) {
+            // prevent default behavior
+            e.evt.preventDefault();
+            if (e.target === app.stage) {
+              // if we are on empty place of the stage we will do nothing
+              return;
+            }
+            app.currentPopupComponent = e.target.getParent();
+            // show menu
+            menuNode.style.display = 'initial';
+            var containerRect = app.stage.container().getBoundingClientRect();
+            menuNode.style.top =
+              containerRect.top + app.stage.getPointerPosition().y + 4 + 'px';
+            menuNode.style.left =
+              containerRect.left + app.stage.getPointerPosition().x + 4 + 'px';
+          });
     }
 }

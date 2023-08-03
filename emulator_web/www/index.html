@@ -41,6 +41,27 @@
         font-family: Arial, Helvetica, sans-serif;
         font-weight: bold;
       }
+
+      #menu {
+        display: none;
+        position: absolute;
+        width: 60px;
+        background-color: white;
+        box-shadow: 0 0 5px grey;
+        border-radius: 3px;
+      }
+
+      #menu button {
+        width: 100%;
+        background-color: white;
+        border: none;
+        margin: 0;
+        padding: 10px;
+      }
+
+      #menu button:hover {
+        background-color: lightgray;
+      }
     </style>
   </head>
   <body>
@@ -52,6 +73,12 @@
         </div>
       </div>
       <div id="container"></div>
+      <div id="menu">
+        <div>
+          <button id="rotate-button">Rotate</button>
+          <button id="delete-button">Delete</button>
+        </div>
+      </div>
     </div>
     <script src="./bootstrap.js"></script>
   </body>
