@@ -8,7 +8,8 @@
     "build": "webpack --config webpack.config.js",
     "start": "webpack-dev-server",
     "serve": "webpack server",
-    "compile": "tsc"
+    "compile": "tsc",
+    "format": "prettier --write \"src/**/*.ts\""
   },
   "keywords": [],
   "author": "",
@@ -18,6 +19,7 @@
     "@types/node": "^20.4.4",
     "@types/webpack": "^5.28.1",
     "html-webpack-plugin": "^5.5.3",
+    "prettier": "^3.0.1",
     "ts-loader": "^9.4.4",
     "typescript": "^5.1.6",
     "webpack": "^5.88.2",
