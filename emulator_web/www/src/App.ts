@@ -81,6 +81,13 @@ export class App {
 
     addNode(config: GraphNodeConfig) {
         let comp = new GraphNode(config)
+
+        var boundingBox = comp.getClientRect()
+
+        let topLeftX = boundingBox.x + boundingBox.width / 2;
+        let topLeftY = boundingBox.y + boundingBox.height / 2;
+
+        comp.position(this.grid.snapToGrid({ x: topLeftX, y: topLeftY }, Math.floor))
         this.nodes.push(comp)
         this.componentLayer.add(comp)
 
@@ -185,19 +192,16 @@ export class App {
           });
     
         window.addEventListener('click', () => {
-        // hide menu
             menuNode.style.display = 'none';
         });
 
         this.stage.on('contextmenu', function (e) {
-            // prevent default behavior
             e.evt.preventDefault();
             if (e.target === app.stage) {
-              // if we are on empty place of the stage we will do nothing
               return;
             }
             app.currentPopupComponent = e.target.getParent();
-            // show menu
+
             menuNode.style.display = 'initial';
             var containerRect = app.stage.container().getBoundingClientRect();
             menuNode.style.top =
