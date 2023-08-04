@@ -10,7 +10,7 @@ pub struct Constant {
 }
 
 impl ComponentBehaviour for Constant {
-    fn propagate(&mut self, _input: &BitSlice, output: &mut BitSlice, mask: &mut BitSlice) {
+    fn propagate(&mut self, _input: &BitSlice, output: &mut BitSlice, _mask: &mut BitSlice) {
         output.set(0, self.state)
     }
     fn input_size(&self) -> usize {
@@ -28,7 +28,7 @@ pub struct DebugOutput {
 }
 
 impl ComponentBehaviour for DebugOutput {
-    fn propagate(&mut self, input: &BitSlice, output: &mut BitSlice, mask: &mut BitSlice) {
+    fn propagate(&mut self, input: &BitSlice, _output: &mut BitSlice, _mask: &mut BitSlice) {
         self.state = input[0]
     }
     fn input_size(&self) -> usize {
@@ -43,7 +43,7 @@ impl ComponentBehaviour for DebugOutput {
 pub struct Fork;
 
 impl ComponentBehaviour for Fork {
-    fn propagate(&mut self, input: &BitSlice, output: &mut BitSlice, mask: &mut BitSlice) {
+    fn propagate(&mut self, input: &BitSlice, output: &mut BitSlice, _mask: &mut BitSlice) {
         output.fill(input[0]);
     }
 

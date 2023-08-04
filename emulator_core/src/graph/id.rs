@@ -1,10 +1,13 @@
 use std::marker::PhantomData;
 
+use serde::{Deserialize, Serialize};
 use slotmap::new_key_type;
 
-new_key_type! {pub struct NodeId;}
+new_key_type! {
+    pub struct NodeId;
+}
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub struct TypedId<C> {
     inner: NodeId,
     marker: PhantomData<C>,

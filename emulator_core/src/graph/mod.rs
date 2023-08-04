@@ -4,6 +4,7 @@ use std::{
 };
 
 use bitvec::prelude::*;
+use serde::{Serialize, Deserialize};
 use slotmap::{SecondaryMap, SlotMap};
 
 use self::{
@@ -15,7 +16,7 @@ use crate::components::{Component, ComponentBehaviour};
 pub mod id;
 pub mod node;
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Graph {
     pub nodes: SlotMap<NodeId, Node>,
     pub inputs: SecondaryMap<NodeId, BitVec>,
