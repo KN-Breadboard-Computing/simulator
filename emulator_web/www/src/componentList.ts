@@ -22,8 +22,8 @@ const ComponentDefaults: ComponentInfo = {
     type: undefined,
     inputSize: undefined,
     outputSize: undefined,
-    width: 150,
-    height: 70,
+    width: 4,
+    height: 2,
     onStart: function (this, stateFetch, stateUpdate, drawState): void {
         var label = new konva.Text({
             text: this.type,
@@ -120,8 +120,8 @@ export const components: Array<ComponentInfo> = [
         type: 'Constant',
         inputSize: 0,
         outputSize: 1,
-        width: 50,
-        height: 50,
+        width: 2,
+        height: 2,
         onStart: constantStart,
         onUpdate: constantUpdate
     },
@@ -130,8 +130,8 @@ export const components: Array<ComponentInfo> = [
         type: 'DebugOutput',
         inputSize: 1,
         outputSize: 0,
-        width: 50,
-        height: 50,
+        width: 2,
+        height: 2,
         onStart: debugStart,
         onUpdate: debugUpdate
     },

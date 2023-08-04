@@ -9,6 +9,8 @@ import { Vector2d } from 'konva/lib/types'
 import { Graph, NodeId } from 'emulator'
 import { Grid } from './grid'
 import { Stage } from 'konva/lib/Stage'
+import { GraphNodeBuilder, GraphNodeBuilderConfig } from './graphNodeBuilder'
+import { GraphNodeRectangleShape } from './graphNodeShape'
 
 export class App {
     componentLayer: Konva.Layer
@@ -69,25 +71,35 @@ export class App {
                     nodeId: app.graph.add_comp({ type: selected.component.type }),
                     x: pos.x,
                     y: pos.y,
-                    componentInfo: selected.component,
                     context: context,
-                    snapToGrid: app.grid.getSnapToGridFunc().bind(app.grid)
+                    scale: 1,
+                    baseShape: new GraphNodeRectangleShape(4, 4, app.grid.spacing)
                 })
             }
         })
 
         this.setupPopupMenu()
     }
+    
+    addNode(config: GraphNodeBuilderConfig) {
+        let graphNodeBuilder = new GraphNodeBuilder(config)
+        graphNodeBuilder
+        .setSnapToGrid(this.grid.getSnapToGridFunc().bind(this.grid))
+        .addInputSlots(2)
+        .addOutputSlots(1)
+        // let trueWidth = config.componentInfo.width * this.grid.spacing;
+        // let trueHeight = config.componentInfo.height * this.grid.spacing;
+        // config.componentInfo.width = trueWidth
+        // config.componentInfo.height = trueHeight
+        
+        let comp = graphNodeBuilder.getGraphNode()
 
-    addNode(config: GraphNodeConfig) {
-        let comp = new GraphNode(config)
-
-        var boundingBox = comp.getClientRect()
-
+        // clip to grid
+        let boundingBox = comp.getClientRect()
         let topLeftX = boundingBox.x + boundingBox.width / 2
         let topLeftY = boundingBox.y + boundingBox.height / 2
-
         comp.position(this.grid.getSnapToGridFunc(Math.floor)({ x: topLeftX, y: topLeftY }))
+
         this.nodes.push(comp)
         this.componentLayer.add(comp)
 
