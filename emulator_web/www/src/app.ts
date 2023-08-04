@@ -10,7 +10,7 @@ import { Graph, NodeId } from 'emulator'
 import { Grid } from './grid'
 import { Stage } from 'konva/lib/Stage'
 import { GraphNodeBuilder, GraphNodeBuilderConfig } from './graphNodeBuilder'
-import { GraphNodeRectangleShape } from './graphNodeShape'
+import { GraphNodeRectangleShape, GraphNodeTriangleShape } from './graphNodeShape'
 
 export class App {
     componentLayer: Konva.Layer
@@ -73,25 +73,18 @@ export class App {
                     y: pos.y,
                     context: context,
                     scale: 1,
-                    baseShape: new GraphNodeRectangleShape(4, 4, app.grid.spacing)
+                    baseShape: new GraphNodeTriangleShape(4, 4, app.grid.spacing)
                 })
             }
         })
 
         this.setupPopupMenu()
     }
-    
+
     addNode(config: GraphNodeBuilderConfig) {
         let graphNodeBuilder = new GraphNodeBuilder(config)
-        graphNodeBuilder
-        .setSnapToGrid(this.grid.getSnapToGridFunc().bind(this.grid))
-        .addInputSlots(2)
-        .addOutputSlots(1)
-        // let trueWidth = config.componentInfo.width * this.grid.spacing;
-        // let trueHeight = config.componentInfo.height * this.grid.spacing;
-        // config.componentInfo.width = trueWidth
-        // config.componentInfo.height = trueHeight
-        
+        graphNodeBuilder.setSnapToGrid(this.grid.getSnapToGridFunc().bind(this.grid)).addInputSlots(2).addOutputSlots(1)
+
         let comp = graphNodeBuilder.getGraphNode()
 
         // clip to grid

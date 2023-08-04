@@ -12,10 +12,10 @@ export interface GraphNodeConfig {
 }
 
 export class GraphNode extends Konva.Group {
-    private context: Context
+    context: Context
 
     nodeId: NodeId
-    
+
     inputSlots: InputSlot[] = []
     outputSlots: OutputSlot[] = []
 

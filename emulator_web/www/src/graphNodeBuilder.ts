@@ -1,16 +1,16 @@
-import Konva from "konva";
-import { GraphNode } from "./graphNode";
-import { NodeId } from "emulator";
-import { Context } from "./context";
-import { GraphNodeShape } from "./graphNodeShape";
-import { InputSlot, OutputSlot, SlotType } from "./slot";
+import Konva from 'konva'
+import { GraphNode } from './graphNode'
+import { NodeId } from 'emulator'
+import { Context } from './context'
+import { GraphNodeShape } from './graphNodeShape'
+import { InputSlot, OutputSlot, SlotType } from './slot'
 
 export interface GraphNodeBuilderConfig {
-    nodeId: NodeId,
-    context: Context,
-    baseShape: GraphNodeShape,
-    x: number,
-    y: number,
+    nodeId: NodeId
+    context: Context
+    baseShape: GraphNodeShape
+    x: number
+    y: number
     scale: number
 }
 
@@ -28,13 +28,13 @@ export class GraphNodeBuilder {
     constructor(config: GraphNodeBuilderConfig) {
         let baseShape = config.baseShape.getShape()
         this.graphNode = new GraphNode({
-            nodeId: config.nodeId, 
+            nodeId: config.nodeId,
             baseShape: baseShape,
             context: config.context,
             x: config.x,
             y: config.y
         })
-        
+
         let boundingBox = baseShape.getClientRect()
         this.graphNode.offset({
             x: boundingBox.width / 2,
@@ -53,7 +53,19 @@ export class GraphNodeBuilder {
         return this
     }
 
-    public addLabel(): GraphNodeBuilder {
+    public setLabel(text: string): GraphNodeBuilder {
+        let label = new Konva.Text({
+            x: 0,
+            y: 0,
+            text: text,
+            fontSize: 18,
+            fontFamily: 'Calibri',
+            fill: 'black',
+            width: this.graphNode.width(),
+            padding: 20,
+            align: 'center'
+        })
+        this.graphNode.add(label)
         return this
     }
 
@@ -70,7 +82,7 @@ export class GraphNodeBuilder {
     public setOffHover(func: () => void): GraphNodeBuilder {
         this.graphNode.on('mouseout', func)
         return this
-    } 
+    }
 
     public addOnClick(func: () => void): GraphNodeBuilder {
         this.graphNode.on('click', func)
@@ -112,21 +124,7 @@ export class GraphNodeBuilder {
             slot = new InputSlot(config, this.graphNode.nodeId, i)
         }
 
-        slot.on('click', () => this.context.updateSelectedSlot(slot))
+        slot.on('click', () => this.graphNode.context.updateSelectedSlot(slot))
         return slot
     }
-
-    // private createLabel(text: string): Konva.Text {
-    //     return new Konva.Text({
-    //         x: 0,
-    //         y: 0,
-    //         text: text,
-    //         fontSize: 18,
-    //         fontFamily: 'Calibri',
-    //         fill: 'black',
-    //         width: this.width(),
-    //         padding: 20,
-    //         align: 'center'
-    //     })
-    // }
 }
