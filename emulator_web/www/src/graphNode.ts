@@ -5,7 +5,6 @@ import { NodeId } from 'emulator'
 
 export interface GraphNodeConfig {
     nodeId: NodeId
-    baseShape: Konva.Shape
     context: Context
     x: number
     y: number
@@ -13,8 +12,9 @@ export interface GraphNodeConfig {
 
 export class GraphNode extends Konva.Group {
     context: Context
-
     nodeId: NodeId
+
+    onNodeUpdate?: (this: GraphNode) => void
 
     inputSlots: InputSlot[] = []
     outputSlots: OutputSlot[] = []
@@ -25,26 +25,8 @@ export class GraphNode extends Konva.Group {
         })
 
         this.context = config.context
-
         this.nodeId = config.nodeId
-        //this.componentInfo = config.componentInfo
-
         this.setPosition({ x: config.x, y: config.y })
-
-        this.width(config.baseShape.width())
-        this.height(config.baseShape.height())
-
-        this.add(config.baseShape)
-        // this.componentInfo.onStart(
-        //     () => {
-        //         return this.context.fetchFn(this.nodeId)
-        //     },
-        //     a => {
-        //         this.context.updateFn(this.nodeId, { type: this.componentInfo.type, ...a })
-        //     },
-        //     { group: this }
-        // )
-
         this.on('dragmove', () => this.context.updateCables())
     }
 
@@ -58,15 +40,8 @@ export class GraphNode extends Konva.Group {
     }
 
     updateNodeState() {
-        console.log('aaa')
-        // this.componentInfo.onUpdate(
-        //     () => {
-        //         return this.context.fetchFn(this.nodeId)
-        //     },
-        //     a => {
-        //         this.context.updateFn(this.nodeId, { type: this.componentInfo.type, ...a })
-        //     },
-        //     { group: this }
-        // )
+        if (this.onNodeUpdate != undefined) {
+            this.onNodeUpdate()
+        }
     }
 }

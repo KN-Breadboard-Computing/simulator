@@ -1,6 +1,6 @@
-import { ComponentInfo, components } from './componentList'
+import { ComponentMeta, components } from './componentMeta'
 
-export var selected: { button: HTMLElement; component: ComponentInfo } = null
+export var selected: { button: HTMLElement; component: ComponentMeta } | null = null
 
 export function unselect() {
     if (selected != null) {
@@ -9,7 +9,7 @@ export function unselect() {
     selected = null
 }
 
-export function select(toSelect: { button: HTMLElement; component: ComponentInfo }) {
+export function select(toSelect: { button: HTMLElement; component: ComponentMeta }) {
     if (selected != null) {
         if (selected.button === toSelect.button) {
             unselect()
@@ -22,7 +22,7 @@ export function select(toSelect: { button: HTMLElement; component: ComponentInfo
 }
 
 export function setupSidePanel() {
-    const buttonPanel = document.getElementById('button_panel')
+    const buttonPanel = document.getElementById('button_panel')!
 
     for (const c of components) {
         const button = document.createElement('button')

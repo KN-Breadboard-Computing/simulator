@@ -2,9 +2,9 @@ import Konva from 'konva'
 import { Shape, ShapeConfig } from 'konva/lib/Shape'
 
 export interface GraphNodeShape {
-    getShape(): Konva.Shape
-    getInputSlotsPositions(count: number): Konva.Vector2d[]
-    getOutputSlotsPositions(count: number): Konva.Vector2d[]
+    getShape(gridSpacing: number): Konva.Shape
+    getInputSlotsPositions(count: number, gridSpacing: number): Konva.Vector2d[]
+    getOutputSlotsPositions(count: number, gridSpacing: number): Konva.Vector2d[]
 }
 
 export class GraphNodeRectangleShape implements GraphNodeShape {
@@ -14,47 +14,46 @@ export class GraphNodeRectangleShape implements GraphNodeShape {
     maxInputSlotsCnt: number
     maxOutputSlotsCnt: number
 
-    gridSpacing: number
-
-    constructor(gridWidth: number, gridHeight: number, gridSpacing: number) {
+    constructor(gridWidth: number, gridHeight: number) {
         this.gridWidth = gridWidth
         this.gridHeight = gridHeight
 
-        this.gridSpacing = gridSpacing
-
-        this.maxInputSlotsCnt = gridWidth - 1
+        this.maxInputSlotsCnt = gridHeight - 1
         this.maxOutputSlotsCnt = gridHeight - 1
     }
 
-    getShape(): Konva.Shape {
+    getShape(gridSpacing: number): Konva.Shape {
         return new Konva.Rect({
             x: 0,
             y: 0,
-            width: this.gridWidth * this.gridSpacing,
-            height: this.gridHeight * this.gridSpacing,
+            width: this.gridWidth * gridSpacing,
+            height: this.gridHeight * gridSpacing,
             fill: 'white',
             stroke: 'black',
             strokeWidth: 4
         })
     }
 
-    getInputSlotsPositions(count: number): Konva.Vector2d[] {
-        return this.getSlotsPositionsHelper(count, 0)
-    }
-
-    getOutputSlotsPositions(count: number): Konva.Vector2d[] {
-        return this.getSlotsPositionsHelper(count, this.gridWidth * this.gridSpacing)
-    }
-
-    private getSlotsPositionsHelper(count: number, x: number): Konva.Vector2d[] {
+    getInputSlotsPositions(count: number, gridSpacing: number): Konva.Vector2d[] {
         if (count > this.maxInputSlotsCnt) {
             console.error("Can't add that many slots")
-            return null
+            count = this.maxInputSlotsCnt
         }
+        return this.getSlotsPositionsHelper(count, 0, gridSpacing)
+    }
 
+    getOutputSlotsPositions(count: number, gridSpacing: number): Konva.Vector2d[] {
+        if (count > this.maxOutputSlotsCnt) {
+            console.error("Can't add that many slots")
+            count = this.maxOutputSlotsCnt
+        }
+        return this.getSlotsPositionsHelper(count, this.gridWidth * gridSpacing, gridSpacing)
+    }
+
+    private getSlotsPositionsHelper(count: number, x: number, gridSpacing: number): Konva.Vector2d[] {
         let slotPositions: Konva.Vector2d[] = []
         for (let i = 0; i < count; i++) {
-            let position = { x: x, y: (i + 1) * ((this.gridHeight * this.gridSpacing) / (count + 1)) }
+            let position = { x: x, y: (i + 1) * ((this.gridHeight * gridSpacing) / (count + 1)) }
             slotPositions.push(position)
         }
 
@@ -69,21 +68,17 @@ export class GraphNodeTriangleShape implements GraphNodeShape {
     maxInputSlotsCnt: number
     maxOutputSlotsCnt: number = 1
 
-    gridSpacing: number
-
-    constructor(gridWidth: number, gridHeight: number, gridSpacing: number) {
+    constructor(gridWidth: number, gridHeight: number) {
         this.gridWidth = gridWidth
         this.gridHeight = gridHeight
-
-        this.gridSpacing = gridSpacing
 
         this.maxInputSlotsCnt = gridWidth - 1
     }
 
-    getShape(): Konva.Shape {
+    getShape(gridSpacing: number): Konva.Shape {
         let point0 = { x: 0, y: 0 }
-        let point1 = { x: 0, y: this.gridHeight * this.gridSpacing }
-        let point2 = { x: this.gridWidth * this.gridSpacing, y: this.gridHeight * this.gridSpacing / 2 }
+        let point1 = { x: 0, y: this.gridHeight * gridSpacing }
+        let point2 = { x: this.gridWidth * gridSpacing, y: this.gridHeight * gridSpacing / 2 }
         return new Konva.Line({
             points: [
                 point0.x, point0.y,
@@ -97,28 +92,28 @@ export class GraphNodeTriangleShape implements GraphNodeShape {
         })
     }
 
-    getInputSlotsPositions(count: number): Konva.Vector2d[] {
+    getInputSlotsPositions(count: number, gridSpacing: number): Konva.Vector2d[] {
         if (count > this.maxInputSlotsCnt) {
             console.error("Can't add that many slots")
-            return null
+            count = this.maxInputSlotsCnt
         }
         
         let slotPositions: Konva.Vector2d[] = []
 
         for (let i = 0; i < count; i++) {
-            let position = { x: 0, y: (i + 1) * ((this.gridHeight * this.gridSpacing) / (count + 1)) }
+            let position = { x: 0, y: (i + 1) * ((this.gridHeight * gridSpacing) / (count + 1)) }
             slotPositions.push(position)
         }
 
         return slotPositions
     }
 
-    getOutputSlotsPositions(count: number): Konva.Vector2d[] {
+    getOutputSlotsPositions(count: number, gridSpacing: number): Konva.Vector2d[] {
         if (count > this.maxOutputSlotsCnt) {
             console.error("Can't add that many slots")
-            return null
+            count = this.maxOutputSlotsCnt
         }
 
-        return [{x: this.gridWidth * this.gridSpacing, y: this.gridHeight * this.gridSpacing / 2}]
+        return [{x: this.gridWidth * gridSpacing, y: this.gridHeight * gridSpacing / 2}]
     }
 }
