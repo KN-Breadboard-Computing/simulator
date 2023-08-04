@@ -16,7 +16,7 @@ use self::{
 
 #[enum_dispatch(Component)]
 pub trait ComponentBehaviour: Debug {
-    fn propagate(&mut self, input: &BitSlice, output: &mut BitSlice);
+    fn propagate(&mut self, input: &BitSlice, output: &mut BitSlice, mask: &mut BitSlice);
     fn input_size(&self) -> usize;
     fn output_size(&self) -> usize;
 }
