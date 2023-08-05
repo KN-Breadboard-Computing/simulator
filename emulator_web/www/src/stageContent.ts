@@ -1,5 +1,5 @@
-import { Cable } from "./cable"
-import { GraphNode } from "./graphNode"
+import { Cable } from './cable'
+import { GraphNode } from './graphNode'
 
 export interface StageContentConfig {
     nodes?: GraphNode[]
@@ -11,7 +11,7 @@ export class StageContent {
     cables: Cable[]
 
     constructor(config: StageContentConfig = {}) {
-        this.nodes = config.nodes ? config.nodes : [];
-        this.cables = config.cables ? config.cables : [];
+        this.nodes = config.nodes ? config.nodes : []
+        this.cables = config.cables ? config.cables : []
     }
 }

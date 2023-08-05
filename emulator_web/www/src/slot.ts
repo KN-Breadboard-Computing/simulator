@@ -3,23 +3,21 @@ import { Cable } from './cable'
 import { GraphNode } from './graphNode'
 import { NodeId } from 'emulator'
 
+export type SlotId = number
+
 export enum SlotType {
     INPUT,
     OUTPUT
 }
 
-export type SlotId = number
-
 export class Slot extends Konva.Circle {
     nodeId: NodeId
     slotId: SlotId
-    slotType: SlotType
     initialFill: string
     connection: Cable
 
     constructor(config: Konva.CircleConfig, nodeId: NodeId, slotId: SlotId) {
         super(config)
-        this.slotType = config.slotType
         this.nodeId = nodeId
         this.slotId = slotId
     }
@@ -37,17 +35,21 @@ export class Slot extends Konva.Circle {
         this.connection = cable
     }
 
-    public static areSlotsCompatible(a: Slot, b: Slot) {
-        if (a.slotType == b.slotType) {
-            return false
+    public static getSlotType(slot: InputSlot | OutputSlot): SlotType {
+        return slot instanceof InputSlot ? SlotType.INPUT : SlotType.OUTPUT
+    }
+
+    public static areSlotsCompatible(a: InputSlot | OutputSlot, b: InputSlot | OutputSlot) {
+        if (this.getSlotType(a) !== this.getSlotType(b)) {
+            return true
         }
-        return true
+        return false
     }
 }
 
 export class InputSlot extends Slot {
     constructor(config: Konva.CircleConfig, nodeId: NodeId, slotId: SlotId) {
-        super({ ...config, slotType: SlotType.INPUT }, nodeId, slotId)
+        super({ ...config }, nodeId, slotId)
     }
 }
 

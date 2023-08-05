@@ -1,6 +1,6 @@
-import { App } from "./app"
-import { GraphNode } from "./graphNode"
-import { Slot } from "./slot"
+import { App } from './app'
+import { GraphNode } from './graphNode'
+import { Slot } from './slot'
 
 export class StateManager {
     selectedSlot: Slot | null
@@ -14,12 +14,12 @@ export class StateManager {
     }
 
     updateSelectedSlot(clickedSlot: Slot) {
-        console.log("Clicked on slot")
+        console.log('Clicked on slot')
         if (this.selectedSlot == null) {
-            console.log("No slot was previously selected")
+            console.log('No slot was previously selected')
             this.selectSlot(clickedSlot)
         } else if (this.selectedSlot != clickedSlot) {
-            console.log("Selecting another slot")
+            console.log('Selecting another slot')
             if (!Slot.areSlotsCompatible(clickedSlot, this.selectedSlot)) {
                 this.selectSlot(clickedSlot)
                 return
@@ -27,7 +27,7 @@ export class StateManager {
             this.app.addCable(this.selectedSlot, clickedSlot)
             this.selectSlot(null)
         } else {
-            console.log("Deselecting")
+            console.log('Deselecting')
             this.selectSlot(null)
         }
     }
