@@ -1,5 +1,5 @@
 import Konva from 'konva'
-import { InputSlot, OutputSlot, Slot, SlotType } from './slot'
+import { InputSlot, OutputSlot, Slot } from './slot'
 import { Context } from './context'
 import { NodeId } from 'emulator'
 
@@ -30,10 +30,12 @@ export class GraphNode extends Konva.Group {
         this.on('dragmove', () => this.context.updateCables())
     }
 
-    addSlot(slot: Slot, slotType: SlotType): void {
-        if (slotType === SlotType.INPUT) {
+    addSlot(slot: InputSlot | OutputSlot): void {
+        if (slot instanceof InputSlot) {
+            console.log('Adding an input slot')
             this.inputSlots.push(slot as InputSlot)
         } else {
+            console.log('Adding an output slot')
             this.outputSlots.push(slot as OutputSlot)
         }
         this.add(slot)

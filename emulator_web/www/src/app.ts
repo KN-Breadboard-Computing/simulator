@@ -2,7 +2,7 @@ import Konva from 'konva'
 import { GraphNode, GraphNodeConfig } from './graphNode'
 import { Cable } from './cable'
 import { Context } from './context'
-import { OutputValue, Slot, SlotType } from './slot'
+import { InputSlot, OutputSlot, OutputValue, Slot, SlotType } from './slot'
 import { selected, setupSidePanel as setupSidePanel } from './sidePanel'
 import { Vector2d } from 'konva/lib/types'
 import { Graph, NodeId } from 'emulator'
@@ -102,10 +102,10 @@ export class App {
     }
 
     getStage(): StageContent {
-        console.log("nodes: " + this.nodes)
+        console.log('nodes: ' + this.nodes)
         return new StageContent({
             nodes: this.nodes,
-            cables: this.cables    
+            cables: this.cables
         })
     }
 
@@ -156,7 +156,7 @@ export class App {
         let output: Slot
         let input: Slot
 
-        if (a.slotType == SlotType.INPUT && b.slotType == SlotType.OUTPUT) {
+        if (a instanceof InputSlot && b instanceof OutputSlot) {
             input = a
             output = b
         } else {

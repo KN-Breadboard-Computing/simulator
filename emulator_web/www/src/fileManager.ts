@@ -1,4 +1,4 @@
-import { StageContent } from "./stageContent";
+import { StageContent } from './stageContent'
 
 export interface FileManagerConfig {
     loadCallback: (stageContent: StageContent) => void
@@ -18,61 +18,60 @@ export class FileManager {
     }
 
     private setFileOutput() {
-        const fileOutput = document.getElementById('fileOutput') as HTMLButtonElement;
+        const fileOutput = document.getElementById('fileOutput') as HTMLButtonElement
         fileOutput.onclick = () => {
             let stageContent = this.saveCallback()
-            const blob = new Blob([JSON.stringify(stageContent)], { type: 'application/json' });
-            const blobUrl = URL.createObjectURL(blob);
+            const blob = new Blob([JSON.stringify(stageContent)], { type: 'application/json' })
+            const blobUrl = URL.createObjectURL(blob)
 
-            const link = document.createElement('a');
-            link.href = blobUrl;
-            link.download = "data.json";
+            const link = document.createElement('a')
+            link.href = blobUrl
+            link.download = 'data.json'
 
             // Add the link to the DOM and simulate a click to trigger the download
-            link.style.display = 'none';
-            document.body.appendChild(link);
-            link.click();
+            link.style.display = 'none'
+            document.body.appendChild(link)
+            link.click()
 
             // Clean up
-            document.body.removeChild(link);
-            URL.revokeObjectURL(blobUrl);
+            document.body.removeChild(link)
+            URL.revokeObjectURL(blobUrl)
         }
     }
 
     private setFileInput() {
-        const fileInput = document.getElementById('fileInput') as HTMLInputElement;
-        fileInput.addEventListener('change', async (event) => {
-            const selectedFile = fileInput.files?.[0];
-            
+        const fileInput = document.getElementById('fileInput') as HTMLInputElement
+        fileInput.addEventListener('change', async event => {
+            const selectedFile = fileInput.files?.[0]
+
             if (selectedFile) {
-                const fileContent = await this.readFileAsync(selectedFile);
+                const fileContent = await this.readFileAsync(selectedFile)
                 try {
-                    const parsedContent = JSON.parse(fileContent);
-                    const stageContent = new StageContent();
-                    stageContent.nodes = parsedContent.nodes;
-                    stageContent.cables = parsedContent.cables;
-                    
+                    const parsedContent = JSON.parse(fileContent)
+                    const stageContent = new StageContent()
+                    stageContent.nodes = parsedContent.nodes
+                    stageContent.cables = parsedContent.cables
+
                     console.log(stageContent)
-                    this.loadCallback(stageContent);
+                    this.loadCallback(stageContent)
                 } catch (error) {
-                    console.error('Error parsing file content:', error);
+                    console.error('Error parsing file content:', error)
                 }
             }
-        });
+        })
     }
 
     private readFileAsync(file: File): Promise<string> {
         return new Promise<string>((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                const content = event.target?.result as string;
-                resolve(content);
-            };
+            const reader = new FileReader()
+            reader.onload = event => {
+                const content = event.target?.result as string
+                resolve(content)
+            }
             reader.onerror = () => {
-                reject(new Error('Error reading file.'));
-            };
-            reader.readAsText(file);
-        });
+                reject(new Error('Error reading file.'))
+            }
+            reader.readAsText(file)
+        })
     }
-        
 }

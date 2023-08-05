@@ -104,7 +104,7 @@ export class GraphNodeBuilder {
             let slotPosition = this.baseShape.getOutputSlotsPositions(count, this.gridSpacing)
             for (let i = 0; i < count; i++) {
                 let slot = this.createSlot(i, slotPosition[i], 'green', SlotType.OUTPUT)
-                this.graphNode.addSlot(slot, slot.slotType)
+                this.graphNode.addSlot(slot)
             }
         } else {
             console.warn('Tried to add slots without adding shape first')
@@ -117,7 +117,7 @@ export class GraphNodeBuilder {
             let slotPosition = this.baseShape.getInputSlotsPositions(count, this.gridSpacing)
             for (let i = 0; i < count; i++) {
                 let slot = this.createSlot(i, slotPosition[i], 'red', SlotType.INPUT)
-                this.graphNode.addSlot(slot, slot.slotType)
+                this.graphNode.addSlot(slot)
             }
         } else {
             console.warn('Tried to add slots without adding shape first')
