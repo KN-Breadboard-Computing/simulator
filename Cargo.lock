@@ -39,7 +39,7 @@ dependencies = [
 
 [[package]]
 name = "emulator_core"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "bitvec",
  "enum_dispatch",
