@@ -3,6 +3,8 @@ use std::marker::PhantomData;
 use serde::{Deserialize, Serialize};
 use slotmap::new_key_type;
 
+pub use slotmap::{Key, KeyData};
+
 new_key_type! {
     pub struct NodeId;
 }

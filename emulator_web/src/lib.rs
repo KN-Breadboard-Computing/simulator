@@ -1,4 +1,4 @@
-use emulator_core::{graph::{Graph as InnerGraph, id::NodeId as InnerNodeId}, components::Component};
+use emulator_core::{graph::{Graph as InnerGraph, id::{NodeId as InnerNodeId, Key}}, components::Component};
 use serde_wasm_bindgen::{from_value, to_value};
 use wasm_bindgen::prelude::*;
 
@@ -9,6 +9,14 @@ pub struct Graph(InnerGraph);
 #[wasm_bindgen]
 #[derive(Debug, Clone, Copy)]
 pub struct NodeId(InnerNodeId);
+
+#[wasm_bindgen]
+impl NodeId {
+    #[wasm_bindgen(getter)]
+    pub fn id(&self) -> u64 {
+        self.0.data().as_ffi()
+    }
+}
 
 #[wasm_bindgen]
 impl Graph {
