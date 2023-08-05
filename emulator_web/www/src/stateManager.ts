@@ -16,10 +16,8 @@ export class StateManager {
     updateSelectedSlot(clickedSlot: Slot) {
         console.log('Clicked on slot')
         if (this.selectedSlot == null) {
-            console.log('No slot was previously selected')
             this.selectSlot(clickedSlot)
         } else if (this.selectedSlot != clickedSlot) {
-            console.log('Selecting another slot')
             if (!Slot.areSlotsCompatible(clickedSlot, this.selectedSlot)) {
                 this.selectSlot(clickedSlot)
                 return
@@ -27,7 +25,6 @@ export class StateManager {
             this.app.addCable(this.selectedSlot, clickedSlot)
             this.selectSlot(null)
         } else {
-            console.log('Deselecting')
             this.selectSlot(null)
         }
     }

@@ -18,7 +18,7 @@ export interface GraphNodeBuilderConfig {
 export class GraphNodeBuilder {
     graphNode: GraphNode
     context: Context
-    baseShape: GraphNodeShape | undefined
+    baseShapeCreator: GraphNodeShape | undefined
     type: string
     gridSpacing: number
 
@@ -39,9 +39,9 @@ export class GraphNodeBuilder {
     }
 
     public setShape(shape: GraphNodeShape): GraphNodeBuilder {
-        this.baseShape = shape
+        this.baseShapeCreator = shape
 
-        let graphicalShape = this.baseShape.getShape(this.gridSpacing)
+        let graphicalShape = this.baseShapeCreator.getShape(this.gridSpacing)
 
         this.graphNode.width(graphicalShape.width())
         this.graphNode.height(graphicalShape.height())
@@ -76,6 +76,7 @@ export class GraphNodeBuilder {
             id: 'mainLabel'
         })
         this.graphNode.add(label)
+        label.moveToBottom()
         return this
     }
 
@@ -100,8 +101,8 @@ export class GraphNodeBuilder {
     }
 
     public setOutputSlots(count: number): GraphNodeBuilder {
-        if (this.baseShape != undefined) {
-            let slotPosition = this.baseShape.getOutputSlotsPositions(count, this.gridSpacing)
+        if (this.baseShapeCreator != undefined) {
+            let slotPosition = this.baseShapeCreator.getOutputSlotsPositions(count, this.gridSpacing)
             for (let i = 0; i < count; i++) {
                 let slot = this.createSlot(i, slotPosition[i], 'green', SlotType.OUTPUT)
                 this.graphNode.addSlot(slot)
@@ -113,8 +114,8 @@ export class GraphNodeBuilder {
     }
 
     public setInputSlots(count: number): GraphNodeBuilder {
-        if (this.baseShape != undefined) {
-            let slotPosition = this.baseShape.getInputSlotsPositions(count, this.gridSpacing)
+        if (this.baseShapeCreator != undefined) {
+            let slotPosition = this.baseShapeCreator.getInputSlotsPositions(count, this.gridSpacing)
             for (let i = 0; i < count; i++) {
                 let slot = this.createSlot(i, slotPosition[i], 'red', SlotType.INPUT)
                 this.graphNode.addSlot(slot)
