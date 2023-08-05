@@ -11,34 +11,37 @@ import { Stage } from 'konva/lib/Stage'
 import { GraphNodeBuilder, GraphNodeBuilderConfig } from './graphNodeBuilder'
 import { GraphNodeRectangleShape, GraphNodeTriangleShape } from './graphNodeShape'
 import { ComponentMeta } from './componentMeta'
+import { FileManager } from './fileManager'
+import { StageContent } from './stageContent'
 
 export class App {
     componentLayer: Konva.Layer
     cableLayer: Konva.Layer
     gridLayer: Konva.Layer
 
-    grid: Grid
     graph: Graph
+
+    stageContent: StageContent
+    grid: Grid
+
     nodes: GraphNode[]
     cables: Cable[]
+    stage: Stage
+
+    context: Context
 
     selectedSlot: Slot | null
     currentPopupComponent: GraphNode | null
 
-    stage: Stage
+    fileLoader: FileManager
 
     constructor() {
         this.componentLayer = new Konva.Layer()
         this.cableLayer = new Konva.Layer()
         this.gridLayer = new Konva.Layer()
-        this.cables = []
-        this.nodes = []
+        this.stageContent = new StageContent()
         this.selectedSlot = null
-        this.stage = new Konva.Stage({
-            container: 'container',
-            width: window.innerWidth,
-            height: window.innerHeight
-        })
+        this.fileLoader = new FileManager(this.setStage)
     }
 
     async run() {
@@ -48,27 +51,16 @@ export class App {
 
         this.graph = emulator.Graph.new()
 
-        this.stage.add(this.gridLayer)
-        this.stage.add(this.cableLayer)
-        this.stage.add(this.componentLayer)
+        this.setStage(new StageContent())
 
         this.grid = new Grid(this.gridLayer, 20)
 
-        let context: Context = new Context({
+        this.context = new Context({
             addCable: this.addCable.bind(this),
             updateCables: this.updateCables.bind(this),
             updateSelectedSlot: this.updateSelectedSlot.bind(this),
             fetchFn: this.fetchFn.bind(this),
             updateFn: this.updateFn.bind(this)
-        })
-
-        let app = this
-        this.stage.on('pointerclick', function () {
-            let pos = app.stage.getPointerPosition()!
-
-            if (selected != null) {
-                app.addNode(context, pos, selected.component)
-            }
         })
 
         this.setupPopupMenu()
@@ -106,6 +98,34 @@ export class App {
         this.componentLayer.add(comp)
 
         console.log('Added node', nodeId)
+    }
+
+    setStage(stageContent: StageContent) {
+        this.stage = new Konva.Stage({
+            container: 'container',
+            width: window.innerWidth,
+            height: window.innerHeight
+        })
+
+        this.componentLayer = new Konva.Layer()
+        this.cableLayer = new Konva.Layer()
+        this.gridLayer = new Konva.Layer()
+
+        this.stage.add(this.gridLayer)
+        this.stage.add(this.cableLayer)
+        this.stage.add(this.componentLayer)
+
+        this.cables = stageContent.cables
+        this.nodes = stageContent.nodes
+
+        let app = this
+        this.stage.on('pointerclick', function () {
+            let pos = app.stage.getPointerPosition()!
+
+            if (selected != null) {
+                app.addNode(app.context, pos, selected.component)
+            }
+        })
     }
 
     addCable(a: Slot, b: Slot) {

@@ -63,12 +63,33 @@
       #menu button:hover {
         background-color: lightgray;
       }
+
+      #fileManageLabel {
+        background-color: #007bff;
+        color: white;
+        padding: 10px 20px;
+        cursor: pointer;
+        border-radius: 5px;
+        text-align: center;
+      }
+
+      #fileManageLabel:hover {
+        background-color: #0056b3;
+      }
     </style>
   </head>
   <body>
     <noscript>This page contains webassembly and javascript content, please enable javascript in your browser.</noscript>
     <div id="main">
       <div id="sidebar">
+        <div>
+          <label for="fileInput" id="fileManageLabel">Load</label>
+          <input type="file" id="fileInput" style="display: none;" />
+        </div>
+        <div>
+          <label for="fileOutput" id="fileManageLabel">Save</label>
+          <input type="file" id="fileOutput" style="display: none;" />
+        </div>
         <p class="panel_label">Add</p>
         <div id="button_panel">
         </div>
