@@ -13,6 +13,7 @@ import { GraphNodeRectangleShape, GraphNodeTriangleShape } from './graphNodeShap
 import { ComponentMeta } from './componentMeta'
 import { FileManager } from './fileManager'
 import { StageContent } from './stageContent'
+import { StateManager } from './stateManager'
 
 export class App {
     componentLayer: Konva.Layer
@@ -30,8 +31,7 @@ export class App {
 
     context: Context
 
-    selectedSlot: Slot | null
-    currentPopupComponent: GraphNode | null
+    stateManager: StateManager
 
     fileLoader: FileManager
 
@@ -40,7 +40,7 @@ export class App {
         this.cableLayer = new Konva.Layer()
         this.gridLayer = new Konva.Layer()
         this.stageContent = new StageContent()
-        this.selectedSlot = null
+        this.stateManager = new StateManager(this)
         this.fileLoader = new FileManager({
             loadCallback: this.setStage.bind(this),
             saveCallback: this.getStage.bind(this)
@@ -59,7 +59,7 @@ export class App {
         this.context = new Context({
             addCable: this.addCable.bind(this),
             updateCables: this.updateCables.bind(this),
-            updateSelectedSlot: this.updateSelectedSlot.bind(this),
+            updateSelectedSlot: this.stateManager.updateSelectedSlot.bind(this.stateManager),
             fetchFn: this.fetchFn.bind(this),
             updateFn: this.updateFn.bind(this)
         })
@@ -145,7 +145,7 @@ export class App {
     }
 
     addCable(a: Slot, b: Slot) {
-        if (!this.areSlotsCompatible(a, b)) {
+        if (!Slot.areSlotsCompatible(a, b)) {
             console.warn("Can't connect slots of the same type")
             return
         }
@@ -170,31 +170,9 @@ export class App {
         this.propagate(output.nodeId)
     }
 
-    areSlotsCompatible(a: Slot, b: Slot) {
-        if (a.slotType == b.slotType) {
-            return false
-        }
-        return true
-    }
-
     updateCables() {
         for (var cable of this.cables) {
             cable.updatePosition()
-        }
-    }
-
-    updateSelectedSlot(clickedSlot: Slot) {
-        if (this.selectedSlot == null) {
-            this.selectSlot(clickedSlot)
-        } else if (this.selectedSlot != clickedSlot) {
-            if (!this.areSlotsCompatible(clickedSlot, this.selectedSlot)) {
-                this.selectSlot(clickedSlot)
-                return
-            }
-            this.addCable(this.selectedSlot, clickedSlot)
-            this.selectSlot(null)
-        } else {
-            this.selectSlot(null)
         }
     }
 
@@ -205,12 +183,6 @@ export class App {
     updateFn(node_id: NodeId, state: { type: string }) {
         this.graph.set_comp(node_id, state)
         this.propagate(node_id)
-    }
-
-    selectSlot(slot: Slot | null) {
-        this.selectedSlot?.deselect()
-        this.selectedSlot = slot
-        slot?.select()
     }
 
     propagate(node_id: NodeId) {
@@ -235,13 +207,14 @@ export class App {
 
     setupPopupMenu() {
         let app = this
+        let currentPopupComponent = this.stateManager.currentPopupComponent
         var menuNode = document.getElementById('menu')!
         document.getElementById('rotate-button')?.addEventListener('click', () => {
-            this.currentPopupComponent?.rotate(90)
+            currentPopupComponent?.rotate(90)
         })
 
         document.getElementById('delete-button')?.addEventListener('click', () => {
-            this.currentPopupComponent?.destroy()
+            currentPopupComponent?.destroy()
         })
 
         window.addEventListener('click', () => {
@@ -253,7 +226,7 @@ export class App {
             if (e.target === app.stage) {
                 return
             }
-            app.currentPopupComponent = e.target.getParent()
+            currentPopupComponent = e.target.getParent()
 
             menuNode.style.display = 'initial'
             var containerRect = app.stage.container().getBoundingClientRect()

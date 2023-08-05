@@ -36,6 +36,13 @@ export class Slot extends Konva.Circle {
     connect(cable: Cable) {
         this.connection = cable
     }
+
+    public static areSlotsCompatible(a: Slot, b: Slot) {
+        if (a.slotType == b.slotType) {
+            return false
+        }
+        return true
+    }
 }
 
 export class InputSlot extends Slot {
