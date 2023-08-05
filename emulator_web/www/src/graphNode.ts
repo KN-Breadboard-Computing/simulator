@@ -34,7 +34,7 @@ export class GraphNode extends Konva.Group {
         if (slotType === SlotType.INPUT) {
             this.inputSlots.push(slot as InputSlot)
         } else {
-            this.inputSlots.push(slot as OutputSlot)
+            this.outputSlots.push(slot as OutputSlot)
         }
         this.add(slot)
     }
