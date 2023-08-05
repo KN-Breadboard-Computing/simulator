@@ -7,7 +7,13 @@ use super::ComponentBehaviour;
 pub struct And;
 
 impl ComponentBehaviour for And {
-    fn propagate(&mut self, input: &BitSlice, output: &mut BitSlice, _mask: &mut BitSlice) {
+    fn propagate(
+        &mut self,
+        _prev_input: &BitSlice,
+        input: &BitSlice,
+        output: &mut BitSlice,
+        _mask: &mut BitSlice,
+    ) {
         output.set(0, input[0] && input[1]);
     }
     fn input_size(&self) -> usize {
@@ -22,7 +28,13 @@ impl ComponentBehaviour for And {
 pub struct Or;
 
 impl ComponentBehaviour for Or {
-    fn propagate(&mut self, input: &BitSlice, output: &mut BitSlice, _mask: &mut BitSlice) {
+    fn propagate(
+        &mut self,
+        _prev_input: &BitSlice,
+        input: &BitSlice,
+        output: &mut BitSlice,
+        _mask: &mut BitSlice,
+    ) {
         output.set(0, input[0] || input[1]);
     }
     fn input_size(&self) -> usize {
@@ -37,7 +49,13 @@ impl ComponentBehaviour for Or {
 pub struct Not;
 
 impl ComponentBehaviour for Not {
-    fn propagate(&mut self, input: &BitSlice, output: &mut BitSlice, _mask: &mut BitSlice) {
+    fn propagate(
+        &mut self,
+        _prev_input: &BitSlice,
+        input: &BitSlice,
+        output: &mut BitSlice,
+        _mask: &mut BitSlice,
+    ) {
         output.set(0, !input[0]);
     }
     fn input_size(&self) -> usize {
@@ -52,7 +70,13 @@ impl ComponentBehaviour for Not {
 pub struct Xor;
 
 impl ComponentBehaviour for Xor {
-    fn propagate(&mut self, input: &bitvec::slice::BitSlice, output: &mut bitvec::slice::BitSlice, _mask: &mut BitSlice) {
+    fn propagate(
+        &mut self,
+        _prev_input: &BitSlice,
+        input: &bitvec::slice::BitSlice,
+        output: &mut bitvec::slice::BitSlice,
+        _mask: &mut BitSlice,
+    ) {
         output.set(0, input[0] ^ input[1]);
     }
     fn input_size(&self) -> usize {

@@ -107,40 +107,49 @@ impl Graph {
         let mut queue = VecDeque::new();
         queue.push_back(node);
 
+        struct QueueData {
+            new_input: BitVec
+        }
         let mut in_queue = SecondaryMap::new();
-        in_queue.insert(node, ());
+        in_queue.insert(node, QueueData {new_input: self.inputs[node].clone()});
 
         let mut depth = 0;
 
         while let Some(next_node_ref) = queue.pop_front() {
-            in_queue.remove(next_node_ref);
+            let queue_data = in_queue.remove(next_node_ref).unwrap();
 
             depth += 1;
             if depth > MAX_PROPAGATION_DEPTH {
                 // TODO Jakiś sensowny handling tego przypadku, logowanie
+                eprintln!("Reached max depth");
                 break;
             }
 
             let next_node = &mut self.nodes[next_node_ref];
-            let input = &self.inputs[next_node_ref];
+
+            let prev_input = &self.inputs[next_node_ref];
+            let new_input = &queue_data.new_input;
             let output = &mut self.outputs[next_node_ref];
 
             let mut mask = bitvec![1; next_node.output_slots.len()];
 
-            next_node.component.propagate(input, output, &mut mask);
+            next_node.component.propagate(prev_input, new_input, output, &mut mask);
+
+            self.inputs[next_node_ref] = queue_data.new_input;
 
             for (i, out_slot) in next_node.output_slots.iter().enumerate() {
                 let &Some(Slot { target_node, target_slot }) = out_slot else {continue;};
                 let output_bit = output[i] & mask[i];
 
-                let target_node_input = &mut self.inputs[target_node];
-                if output_bit != target_node_input[target_slot] {
-                    target_node_input.set(target_slot, output_bit);
+                let target_new_input = in_queue.get(target_node).map(|d| &d.new_input).unwrap_or(&self.inputs[target_node]);
 
+                if output_bit != target_new_input[target_slot] {
                     if !in_queue.contains_key(target_node) {
-                        in_queue.insert(target_node, ());
+                        in_queue.insert(target_node, QueueData { new_input: target_new_input.clone() });
                         queue.push_back(target_node);
                     }
+
+                    in_queue[target_node].new_input.set(target_slot, output_bit)
                 }
             }
         }
