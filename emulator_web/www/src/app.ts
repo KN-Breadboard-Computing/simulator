@@ -98,7 +98,7 @@ export class App {
         this.nodes.push(comp)
         this.componentLayer.add(comp)
 
-        console.log('Added node', nodeId.id)
+        console.log('Added node', nodeId)
     }
 
     getStage(): StageContent {

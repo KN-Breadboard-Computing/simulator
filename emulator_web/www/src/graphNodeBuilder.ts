@@ -34,7 +34,8 @@ export class GraphNodeBuilder {
         this.type = config.type
     }
 
-    public getGraphNode(): GraphNode {
+    public getGraphNode(slotsToTop: boolean = true): GraphNode {
+        if (slotsToTop) this.moveSlotsToTop()
         return this.graphNode
     }
 
@@ -76,7 +77,6 @@ export class GraphNodeBuilder {
             id: 'mainLabel'
         })
         this.graphNode.add(label)
-        label.moveToBottom()
         return this
     }
 
@@ -164,5 +164,14 @@ export class GraphNodeBuilder {
 
         slot.on('click', () => this.graphNode.context.updateSelectedSlot(slot))
         return slot
+    }
+
+    public moveSlotsToTop() {
+        for (let slot of this.graphNode.outputSlots) {
+            slot.moveToTop()
+        }
+        for (let slot of this.graphNode.inputSlots) {
+            slot.moveToTop()
+        }
     }
 }
