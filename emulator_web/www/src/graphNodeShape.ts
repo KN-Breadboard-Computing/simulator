@@ -78,13 +78,9 @@ export class GraphNodeTriangleShape implements GraphNodeShape {
     getShape(gridSpacing: number): Konva.Shape {
         let point0 = { x: 0, y: 0 }
         let point1 = { x: 0, y: this.gridHeight * gridSpacing }
-        let point2 = { x: this.gridWidth * gridSpacing, y: this.gridHeight * gridSpacing / 2 }
+        let point2 = { x: this.gridWidth * gridSpacing, y: (this.gridHeight * gridSpacing) / 2 }
         return new Konva.Line({
-            points: [
-                point0.x, point0.y,
-                point1.x, point1.y,
-                point2.x, point2.y
-            ],
+            points: [point0.x, point0.y, point1.x, point1.y, point2.x, point2.y],
             closed: true,
             fill: 'white',
             stroke: 'black',
@@ -97,7 +93,7 @@ export class GraphNodeTriangleShape implements GraphNodeShape {
             console.error("Can't add that many slots")
             count = this.maxInputSlotsCnt
         }
-        
+
         let slotPositions: Konva.Vector2d[] = []
 
         for (let i = 0; i < count; i++) {
@@ -114,6 +110,6 @@ export class GraphNodeTriangleShape implements GraphNodeShape {
             count = this.maxOutputSlotsCnt
         }
 
-        return [{x: this.gridWidth * gridSpacing, y: this.gridHeight * gridSpacing / 2}]
+        return [{ x: this.gridWidth * gridSpacing, y: (this.gridHeight * gridSpacing) / 2 }]
     }
 }

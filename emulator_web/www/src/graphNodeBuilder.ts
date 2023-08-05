@@ -73,7 +73,7 @@ export class GraphNodeBuilder {
             height: this.graphNode.height(),
             align: 'center',
             verticalAlign: 'middle',
-            id: "mainLabel"
+            id: 'mainLabel'
         })
         this.graphNode.add(label)
         return this
@@ -99,7 +99,7 @@ export class GraphNodeBuilder {
         return this
     }
 
-    public addOutputSlots(count: number): GraphNodeBuilder {
+    public setOutputSlots(count: number): GraphNodeBuilder {
         if (this.baseShape != undefined) {
             let slotPosition = this.baseShape.getOutputSlotsPositions(count, this.gridSpacing)
             for (let i = 0; i < count; i++) {
@@ -112,7 +112,7 @@ export class GraphNodeBuilder {
         return this
     }
 
-    public addInputSlots(count: number): GraphNodeBuilder {
+    public setInputSlots(count: number): GraphNodeBuilder {
         if (this.baseShape != undefined) {
             let slotPosition = this.baseShape.getInputSlotsPositions(count, this.gridSpacing)
             for (let i = 0; i < count; i++) {
@@ -130,7 +130,7 @@ export class GraphNodeBuilder {
         return this
     }
 
-    private bindEventListener<T>(listener: NodeEventListener<T>) : (this: GraphNode) => void {
+    private bindEventListener<T>(listener: NodeEventListener<T>): (this: GraphNode) => void {
         let func = () => {
             listener.bind(this.graphNode)(
                 () => {

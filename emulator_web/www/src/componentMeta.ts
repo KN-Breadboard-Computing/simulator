@@ -52,7 +52,7 @@ export const components: ComponentMeta[] = [
     { type: 'And', inputSize: 2, outputSize: 1, shape: new GraphNodeRectangleShape(4, 4), tags: [new LabelTag('And')] },
     { type: 'Or', inputSize: 2, outputSize: 1, shape: new GraphNodeRectangleShape(4, 4), tags: [new LabelTag('Or')] },
     { type: 'Xor', inputSize: 2, outputSize: 1, shape: new GraphNodeRectangleShape(4, 4), tags: [new LabelTag('Xor')] },
-    { type: 'Not', inputSize: 1, outputSize: 1, shape: new GraphNodeTriangleShape(4, 4), tags: [] },
+    { type: 'Not', inputSize: 1, outputSize: 1, shape: new GraphNodeTriangleShape(2, 2), tags: [] },
     {
         type: 'Constant',
         inputSize: 0,

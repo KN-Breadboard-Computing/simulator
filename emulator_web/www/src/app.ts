@@ -75,7 +75,7 @@ export class App {
     }
 
     addNode(context: Context, pos: Vector2d, componentMeta: ComponentMeta) {
-        let nodeId = this.graph.add_comp({ type : componentMeta.type})
+        let nodeId = this.graph.add_comp({ type: componentMeta.type })
         let graphNodeBuilder = new GraphNodeBuilder({
             nodeId: nodeId,
             x: pos.x,
@@ -87,8 +87,8 @@ export class App {
         graphNodeBuilder
             .setShape(componentMeta.shape)
             .setSnapToGrid(this.grid.getSnapToGridFunc().bind(this.grid))
-            .addInputSlots(componentMeta.inputSize)
-            .addOutputSlots(componentMeta.outputSize)
+            .setInputSlots(componentMeta.inputSize)
+            .setOutputSlots(componentMeta.outputSize)
 
         for (const tag of componentMeta.tags) {
             tag.addToBuild(graphNodeBuilder)
