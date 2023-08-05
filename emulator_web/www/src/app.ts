@@ -41,7 +41,10 @@ export class App {
         this.gridLayer = new Konva.Layer()
         this.stageContent = new StageContent()
         this.selectedSlot = null
-        this.fileLoader = new FileManager(this.setStage)
+        this.fileLoader = new FileManager({
+            loadCallback: this.setStage.bind(this),
+            saveCallback: this.getStage.bind(this)
+        })
     }
 
     async run() {
@@ -52,8 +55,6 @@ export class App {
         this.graph = emulator.Graph.new()
 
         this.setStage(new StageContent())
-
-        this.grid = new Grid(this.gridLayer, 20)
 
         this.context = new Context({
             addCable: this.addCable.bind(this),
@@ -100,6 +101,14 @@ export class App {
         console.log('Added node', nodeId)
     }
 
+    getStage(): StageContent {
+        console.log("nodes: " + this.nodes)
+        return new StageContent({
+            nodes: this.nodes,
+            cables: this.cables    
+        })
+    }
+
     setStage(stageContent: StageContent) {
         this.stage = new Konva.Stage({
             container: 'container',
@@ -115,9 +124,6 @@ export class App {
         this.stage.add(this.cableLayer)
         this.stage.add(this.componentLayer)
 
-        this.cables = stageContent.cables
-        this.nodes = stageContent.nodes
-
         let app = this
         this.stage.on('pointerclick', function () {
             let pos = app.stage.getPointerPosition()!
@@ -126,6 +132,16 @@ export class App {
                 app.addNode(app.context, pos, selected.component)
             }
         })
+
+        this.nodes = []
+
+        this.grid = new Grid(this.gridLayer, 20)
+
+        for (var comp of stageContent.nodes) {
+            this.nodes.push(comp)
+            this.componentLayer.add(comp)
+        }
+        this.cables = stageContent.cables
     }
 
     addCable(a: Slot, b: Slot) {
