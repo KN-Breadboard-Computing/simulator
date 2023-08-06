@@ -14,6 +14,7 @@ import { ComponentMeta } from './componentMeta'
 import { FileManager } from './fileManager'
 import { StageContent } from './stageContent'
 import { StateManager } from './stateManager'
+import { PopupMenu } from './popupMenu'
 
 export class App {
     componentLayer: Konva.Layer
@@ -34,6 +35,8 @@ export class App {
     stateManager: StateManager
 
     fileLoader: FileManager
+
+    popupMenu: PopupMenu
 
     constructor() {
         this.componentLayer = new Konva.Layer()
@@ -64,7 +67,11 @@ export class App {
             updateFn: this.updateFn.bind(this)
         })
 
-        this.setupPopupMenu()
+        this.popupMenu = new PopupMenu({
+            stateManager: this.stateManager,
+            stage: this.stage
+        })
+        this.popupMenu.setup()
     }
 
     addNode(context: Context, pos: Vector2d, componentMeta: ComponentMeta) {
@@ -102,6 +109,7 @@ export class App {
     }
 
     getStage(): StageContent {
+        // to do
         console.log('nodes: ' + this.nodes)
         return new StageContent({
             nodes: this.nodes,
@@ -110,6 +118,7 @@ export class App {
     }
 
     setStage(stageContent: StageContent) {
+        // to do
         this.stage = new Konva.Stage({
             container: 'container',
             width: window.innerWidth,
@@ -203,35 +212,5 @@ export class App {
                 console.log('Updated output', node.id, output.slotId, bit, bit == 1)
             }
         }
-    }
-
-    setupPopupMenu() {
-        let app = this
-        let currentPopupComponent = this.stateManager.currentPopupComponent
-        var menuNode = document.getElementById('menu')!
-        document.getElementById('rotate-button')?.addEventListener('click', () => {
-            currentPopupComponent?.group.rotate(90)
-        })
-
-        document.getElementById('delete-button')?.addEventListener('click', () => {
-            currentPopupComponent?.group.destroy()
-        })
-
-        window.addEventListener('click', () => {
-            menuNode.style.display = 'none'
-        })
-
-        this.stage.on('contextmenu', function (e) {
-            e.evt.preventDefault()
-            if (e.target === app.stage) {
-                return
-            }
-            currentPopupComponent = e.target.getParent()
-
-            menuNode.style.display = 'initial'
-            var containerRect = app.stage.container().getBoundingClientRect()
-            menuNode.style.top = containerRect.top + app.stage.getPointerPosition()!.y + 4 + 'px'
-            menuNode.style.left = containerRect.left + app.stage.getPointerPosition()!.x + 4 + 'px'
-        })
     }
 }
