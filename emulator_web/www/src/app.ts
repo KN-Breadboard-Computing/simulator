@@ -90,13 +90,13 @@ export class App {
         let comp = graphNodeBuilder.getGraphNode()
 
         // clip to grid
-        let boundingBox = comp.getClientRect()
+        let boundingBox = comp.group.getClientRect()
         let topLeftX = boundingBox.x + boundingBox.width / 2
         let topLeftY = boundingBox.y + boundingBox.height / 2
-        comp.position(this.grid.getSnapToGridFunc(Math.floor)({ x: topLeftX, y: topLeftY }))
+        comp.group.position(this.grid.getSnapToGridFunc(Math.floor)({ x: topLeftX, y: topLeftY }))
 
         this.nodes.push(comp)
-        this.componentLayer.add(comp)
+        this.componentLayer.add(comp.group)
 
         console.log('Added node', nodeId)
     }
@@ -139,7 +139,7 @@ export class App {
 
         for (var comp of stageContent.nodes) {
             this.nodes.push(comp)
-            this.componentLayer.add(comp)
+            this.componentLayer.add(comp.group)
         }
         this.cables = stageContent.cables
     }
@@ -194,13 +194,13 @@ export class App {
         for (const node of this.nodes) {
             node.updateNodeState()
 
-            let output_state = this.graph.output_state(node.nodeId)
+            let output_state = this.graph.output_state(node.id)
 
             for (const output of node.outputSlots) {
                 let bit = output_state & 1
                 output_state = output_state >> 1
                 output.setValue(bit == 1 ? OutputValue.ONE : OutputValue.ZERO)
-                console.log('Updated output', node.nodeId, output.slotId, bit, bit == 1)
+                console.log('Updated output', node.id, output.slotId, bit, bit == 1)
             }
         }
     }
@@ -210,11 +210,11 @@ export class App {
         let currentPopupComponent = this.stateManager.currentPopupComponent
         var menuNode = document.getElementById('menu')!
         document.getElementById('rotate-button')?.addEventListener('click', () => {
-            currentPopupComponent?.rotate(90)
+            currentPopupComponent?.group.rotate(90)
         })
 
         document.getElementById('delete-button')?.addEventListener('click', () => {
-            currentPopupComponent?.destroy()
+            currentPopupComponent?.group.destroy()
         })
 
         window.addEventListener('click', () => {

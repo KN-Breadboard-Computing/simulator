@@ -23,7 +23,7 @@ class BitUpdateTag implements Tag {
         builder.setLabel('0')
 
         builder.setOnNodeUpdate<{ state: boolean }>(function (f, u): void {
-            let label: Text = this.findOne('#mainLabel')
+            let label: Text = this.shapeGroup.findOne('#mainLabel')
             label.text(f().state ? '1' : '0')
         })
     }

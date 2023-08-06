@@ -4,15 +4,16 @@ import { Context } from './context'
 import { NodeId } from 'emulator'
 
 export interface GraphNodeConfig {
-    nodeId: NodeId
-    context: Context
+    id: NodeId
     x: number
     y: number
 }
 
-export class GraphNode extends Konva.Group {
-    context: Context
-    nodeId: NodeId
+export class GraphNode {
+    group: Konva.Group
+    slotGroup: Konva.Group
+    shapeGroup: Konva.Group
+    id: NodeId
 
     onNodeUpdate?: (this: GraphNode) => void
 
@@ -20,25 +21,22 @@ export class GraphNode extends Konva.Group {
     outputSlots: OutputSlot[] = []
 
     constructor(config: GraphNodeConfig) {
-        super({
-            draggable: true
-        })
-
-        this.context = config.context
-        this.nodeId = config.nodeId
-        this.setPosition({ x: config.x, y: config.y })
-        this.on('dragmove', () => this.context.updateCables())
+        this.group = new Konva.Group({draggable: true})
+        this.slotGroup = new Konva.Group()
+        this.shapeGroup = new Konva.Group()
+        this.group.add(this.shapeGroup)
+        this.group.add(this.slotGroup)
+        this.id = config.id
+        this.group.setPosition({ x: config.x, y: config.y })
     }
 
     addSlot(slot: InputSlot | OutputSlot): void {
         if (slot instanceof InputSlot) {
-            console.log('Adding an input slot')
             this.inputSlots.push(slot as InputSlot)
         } else {
-            console.log('Adding an output slot')
             this.outputSlots.push(slot as OutputSlot)
         }
-        this.add(slot)
+        this.slotGroup.add(slot)
     }
 
     updateNodeState() {

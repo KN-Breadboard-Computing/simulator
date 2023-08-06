@@ -24,11 +24,11 @@ export class GraphNodeBuilder {
 
     constructor(config: GraphNodeBuilderConfig) {
         this.graphNode = new GraphNode({
-            nodeId: config.nodeId,
-            context: config.context,
+            id: config.nodeId,
             x: config.x,
             y: config.y
         })
+        this.graphNode.group.on('dragmove', () => this.context.updateCables())
         this.context = config.context
         this.gridSpacing = config.gridSpacing
         this.type = config.type
@@ -44,21 +44,21 @@ export class GraphNodeBuilder {
 
         let graphicalShape = this.baseShapeCreator.getShape(this.gridSpacing)
 
-        this.graphNode.width(graphicalShape.width())
-        this.graphNode.height(graphicalShape.height())
+        this.graphNode.group.width(graphicalShape.width())
+        this.graphNode.group.height(graphicalShape.height())
 
         let boundingBox = graphicalShape.getClientRect()
-        this.graphNode.offset({
+        this.graphNode.group.offset({
             x: boundingBox.width / 2,
             y: boundingBox.height / 2
         })
 
-        this.graphNode.add(graphicalShape)
+        this.graphNode.shapeGroup.add(graphicalShape)
         return this
     }
 
     public setSnapToGrid(func: (pos: Konva.Vector2d) => Konva.Vector2d): GraphNodeBuilder {
-        this.graphNode.dragBoundFunc(func)
+        this.graphNode.group.dragBoundFunc(func)
         return this
     }
 
@@ -70,28 +70,28 @@ export class GraphNodeBuilder {
             fontSize: 18,
             fontFamily: 'Calibri',
             fill: 'black',
-            width: this.graphNode.width(),
-            height: this.graphNode.height(),
+            width: this.graphNode.group.width(),
+            height: this.graphNode.group.height(),
             align: 'center',
             verticalAlign: 'middle',
             id: 'mainLabel'
         })
-        this.graphNode.add(label)
+        this.graphNode.shapeGroup.add(label)
         return this
     }
 
     public setOnClick<T>(func: NodeEventListener<T>): GraphNodeBuilder {
-        this.graphNode.on('click', this.bindEventListener(func))
+        this.graphNode.group.on('click', () => this.bindEventListener(func))
         return this
     }
 
     public setOnHover<T>(func: NodeEventListener<T>): GraphNodeBuilder {
-        this.graphNode.on('mouseover', this.bindEventListener(func))
+        this.graphNode.group.on('mouseover', () => this.bindEventListener(func))
         return this
     }
 
     public setOffHover<T>(func: NodeEventListener<T>): GraphNodeBuilder {
-        this.graphNode.on('mouseout', this.bindEventListener(func))
+        this.graphNode.group.on('mouseout', () => this.bindEventListener(func))
         return this
     }
 
@@ -135,10 +135,10 @@ export class GraphNodeBuilder {
         let func = () => {
             listener.bind(this.graphNode)(
                 () => {
-                    return this.context.fetchFn(this.graphNode.nodeId)
+                    return this.context.fetchFn(this.graphNode.id)
                 },
                 (state: T) => {
-                    this.context.updateFn(this.graphNode.nodeId, { type: this.type, ...state })
+                    this.context.updateFn(this.graphNode.id, { type: this.type, ...state })
                 }
             )
         }
@@ -157,12 +157,12 @@ export class GraphNodeBuilder {
         let slot: InputSlot | OutputSlot
 
         if (type === SlotType.OUTPUT) {
-            slot = new OutputSlot(config, this.graphNode.nodeId, i)
+            slot = new OutputSlot(config, this.graphNode.id, i)
         } else {
-            slot = new InputSlot(config, this.graphNode.nodeId, i)
+            slot = new InputSlot(config, this.graphNode.id, i)
         }
 
-        slot.on('click', () => this.graphNode.context.updateSelectedSlot(slot))
+        slot.on('click', () => this.context.updateSelectedSlot(slot))
         return slot
     }
 
