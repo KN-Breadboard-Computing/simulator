@@ -27,7 +27,7 @@
     "webpack-dev-server": "^4.15.1"
   },
   "dependencies": {
-    "emulator": "file:../pkg",
+    "emulator": "file:./bridge/pkg",
     "konva": "^9.2.0"
   }
 }
