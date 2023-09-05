@@ -1,28 +1,32 @@
+import Konva  from "konva";
 import { Grid } from "../grid";
 import { Cable, CableId } from "./cable";
-import { CableDrawGroup } from "./cableDrawGroup";
+import { CableShape } from "./cableShape";
 
 export class CableGraph {
     cables : Cable[]
+    cableShapes: CableShape[]
     grid: Grid
-    drawGroup: CableDrawGroup
+    drawGroup: Konva.Group
 
     constructor(grid: Grid) {
         this.cables = []
+        this.cableShapes = []
         this.grid = grid
-        this.drawGroup = new CableDrawGroup(grid)
+        this.drawGroup = new Konva.Group
     }
 
     createCable() : CableId {
         let id = this.cables.length
         let cable = new Cable(id)
         this.cables.push(cable)
-        this.drawGroup.addCableLine(cable)
+        let shape = new CableShape(this.grid)
+        this.cableShapes[id] = shape
+        this.drawGroup.add(shape.shape)
         return id
     }
 
-    updateCable(id: CableId, func : (cable: Cable) => void) {
-        func(this.cables[id])
-        this.drawGroup.updateCableLine(this.cables[id])
+    getCable(id: CableId) : Cable {
+        return this.cables[id]
     }
 }
