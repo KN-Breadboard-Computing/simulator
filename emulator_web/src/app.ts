@@ -19,7 +19,7 @@ export class App {
         let grid = new Grid(50, 50)
 
         let graph = new CableGraph(grid)
-        let controller = new CableMouseController(graph,grid,layer)
+        let controller = new CableMouseController(graph,layer)
 
         stage.on('pointerdown', () => {
             console.log("aaaa")
