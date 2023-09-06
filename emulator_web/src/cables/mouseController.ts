@@ -6,15 +6,14 @@ import Konva from "konva";
 
 export class CableMouseController {
     graph: CableGraph
-    cableLayer: Konva.Layer
 
     selectedCable: CableShape | null = null
     selectedPoint: number | null = null
     newCable: boolean
+    oldCablePos: Array<number> | undefined
 
-    constructor(graph: CableGraph, layer: Konva.Layer) {
+    constructor(graph: CableGraph) {
         this.graph = graph
-        this.cableLayer = layer
     }
 
     dragStart(pos: {x: number, y: number}) {
@@ -25,18 +24,18 @@ export class CableMouseController {
             if (point !== undefined) {
                 this.selectedPoint = point
                 this.newCable = false
-            } else {
-                this.selectedCable = null
-                this.selectedPoint = null
+                this.oldCablePos = this.selectedCable.controlPoints.slice()
+                return
             }
-        } else {
-            this.selectedCable = new CableShape(this.graph.grid)
-            this.selectedCable.addPoint(gridPos)
-            this.selectedCable.addPoint(gridPos)
-            this.selectedPoint = 1
-            this.cableLayer.add(this.selectedCable.shape)
-            this.newCable = true
         }
+
+        this.selectedCable = new CableShape(this.graph.grid)
+        this.selectedCable.addPoint(gridPos)
+        this.selectedCable.addPoint(gridPos)
+        this.selectedPoint = 1
+        this.graph.grid.cableLayer.add(this.selectedCable.shape)
+        this.newCable = true
+        this.oldCablePos = undefined
 
     }
     
@@ -55,7 +54,14 @@ export class CableMouseController {
                 this.selectedCable.shape.on('pointerdown', (() => {
                     this.selectedCable = t
                 }).bind(this))
+                this.graph.createCableWithShape(this.selectedCable)
+            } else {
+                this.graph.cableShapeMoved(this.selectedCable, this.oldCablePos)
             }
+            console.log(this.selectedCable)
+            console.log(this.graph.grid.cache)
+            console.log(this.graph)
+            this.oldCablePos = undefined
             this.selectedCable = null
             this.selectedPoint = null
         }
