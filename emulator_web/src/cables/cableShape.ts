@@ -150,10 +150,10 @@ export class CableShape {
         if (this.controlPoints.length == 0) return
         ctx.beginPath()
         let start = this.grid.gridToWorld(this.getPoint(0))
-        ctx.moveTo(start[0], start[1])
+        ctx.moveTo(start.x, start.y)
         for (let i = 1; i < this.controlPoints.length; i++) {
             let point = this.grid.gridToWorld(this.getPoint(i))
-            ctx.lineTo(point[0], point[1])
+            ctx.lineTo(point.x, point.y)
         }
         ctx.fillStrokeShape(shape)
     }

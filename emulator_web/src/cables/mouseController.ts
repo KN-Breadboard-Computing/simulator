@@ -1,69 +1,78 @@
-import { Grid } from "../grid";
-import { CableId } from "./cable";
-import { CableGraph } from "./cableGraph";
-import { CableShape } from "./cableShape";
-import Konva from "konva";
+import { Controller, ControllerControl } from '../controllerRegister'
+import { Grid } from '../grid'
+import { CableId } from './cable'
+import { CableGraph } from './cableGraph'
+import { CableShape } from './cableShape'
+import Konva from 'konva'
 
-export class CableMouseController {
+export type CableControllerConfig = {
     graph: CableGraph
+    selection?: { cable: CableShape; point?: number }
+    gridPos?: [number, number]
+}
 
-    selectedCable: CableShape | null = null
-    selectedPoint: number | null = null
-    newCable: boolean
-    oldCablePos: Array<number> | undefined
+export class CableController implements Controller {
+    graph: CableGraph
+    selectedCable: CableShape
+    selectedPoint: number
+    newCable: boolean = false
+    oldCablePos: Array<number> | undefined = undefined
 
-    constructor(graph: CableGraph) {
-        this.graph = graph
-    }
+    control: ControllerControl
 
-    dragStart(pos: {x: number, y: number}) {
-        let gridPos = this.graph.grid.worldToGrid(pos)
-
-        if (this.selectedCable) {
-            let point = this.selectedCable.findOrMakePoint(gridPos)
-            if (point !== undefined) {
-                this.selectedPoint = point
-                this.newCable = false
-                this.oldCablePos = this.selectedCable.controlPoints.slice()
-                return
+    init(config: CableControllerConfig) {
+        this.graph = config.graph
+        if (config.selection != undefined) {
+            // Sprecyzowano początkowe zaznaczenie 
+            this.selectedCable = config.selection.cable
+            this.oldCablePos = config.selection.cable.controlPoints.slice()
+            if (config.selection.point != undefined) {
+                // Sprecyzowano początkowy punkt 
+                this.selectedPoint = config.selection.point
             }
+        } else {
+            // Nie ma początkowego zaznaczenia - trzeba utworzyć nowy kabel
+            this.selectedCable = new CableShape(this.graph.grid)
+            this.graph.grid.cableLayer.add(this.selectedCable.shape)
+            this.newCable = true
         }
 
-        this.selectedCable = new CableShape(this.graph.grid)
-        this.selectedCable.addPoint(gridPos)
-        this.selectedCable.addPoint(gridPos)
-        this.selectedPoint = 1
-        this.graph.grid.cableLayer.add(this.selectedCable.shape)
-        this.newCable = true
-        this.oldCablePos = undefined
-
-    }
-    
-    drag(pos: { x: number, y: number }) {
-        let gridPos = this.graph.grid.worldToGrid(pos)
-        if (this.selectedCable !== null && this.selectedPoint !== null) {
-            this.selectedPoint = this.selectedCable.movePointAligned(this.selectedPoint, gridPos)
-        }
-    }
-
-    dragEnd(pos: {x: number, y: number}) {
-        if (this.selectedCable) {
-            this.selectedCable.removeFlatPoints()
-            if (this.newCable) {
-                let t = this.selectedCable
-                this.selectedCable.shape.on('pointerdown', (() => {
-                    this.selectedCable = t
-                }).bind(this))
-                this.graph.createCableWithShape(this.selectedCable)
+        if (this.selectedPoint == undefined && config.gridPos != undefined) {
+            // Nie ma wybranego punktu, ale jest pozycja
+            if(this.newCable) {
+                this.selectedCable.addPoint(config.gridPos)
+                this.selectedCable.addPoint(config.gridPos)
+                this.selectedPoint = 1
             } else {
-                this.graph.cableShapeMoved(this.selectedCable, this.oldCablePos)
+                let point = this.selectedCable.findOrMakePoint(config.gridPos)
+                if (point != undefined) {
+                    this.selectedPoint = point
+                } else {
+                    this.control.destroyController()
+                }
             }
-            console.log(this.selectedCable)
-            console.log(this.graph.grid.cache)
-            console.log(this.graph)
-            this.oldCablePos = undefined
-            this.selectedCable = null
-            this.selectedPoint = null
+        } else {
+            throw "Nie ma pozycji ani punktu początkowego"
         }
+    }
+
+    dragStart(pos: { x: number; y: number }) {
+
+    }
+
+    drag(pos: { x: number; y: number }) {
+        let gridPos = this.graph.grid.worldToGrid(pos)
+
+        this.selectedPoint = this.selectedCable.movePointAligned(this.selectedPoint, gridPos)
+    }
+
+    dragEnd(pos: { x: number; y: number }) {
+        this.selectedCable.removeFlatPoints()
+        if (this.newCable) {
+            this.graph.createCableWithShape(this.selectedCable)
+        } else {
+            this.graph.cableShapeMoved(this.selectedCable, this.oldCablePos)
+        }
+        this.control.destroyController()
     }
 }

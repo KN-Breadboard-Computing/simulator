@@ -3,8 +3,9 @@ import { Graph } from 'emulator'
 import { Cable } from './cables/cable'
 import { Grid } from './grid'
 import { CableGraph } from './cables/cableGraph'
-import { CableMouseController } from './cables/mouseController'
+import { CableController } from './cables/mouseController'
 import { CacheMap } from './gridCache'
+import { ControllerRegister } from './controllerRegister'
 
 export class App {
     async run() {
@@ -18,30 +19,25 @@ export class App {
         let splitLayer = new Konva.Layer()
         stage.add(cableLayer,splitLayer)
         
+        let controllers = new ControllerRegister(stage)
         let grid = new Grid(50, 50)
         grid.cableLayer = cableLayer
         grid.splitLayer = splitLayer
+        grid.stage = stage
+        grid.controllerRegister = controllers
         
         let graph = new CableGraph(grid)
-        let controller = new CableMouseController(graph)
+        grid.graph = graph
 
         stage.on('pointerdown', () => {
-            let pos = stage.getPointerPosition()
-            if (!pos) return
-            controller.dragStart(pos)
+            let pos = grid.pointerGridPos()
+            if (pos != undefined) {
+                controllers.registerCableController({graph: graph, gridPos: pos})
+            }
         })
 
         stage.on('pointermove', () => {
-            let pos = stage.getPointerPosition()
-            if (!pos) return
-            controller.drag(pos)
             cableLayer.draw()
-        })
-
-        stage.on('pointerup', () => {
-            let pos = stage.getPointerPosition()
-            if (!pos) return
-            controller.dragEnd(pos)
         })
     }
 }

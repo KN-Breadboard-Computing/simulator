@@ -25,6 +25,15 @@ export class CableGraph {
         let id = this.createCable()
         this.cableShapes[id] = cableShape
         cableShape.id = id
+
+        cableShape.shape.on('pointerdown', ((evt) => {
+            let gridPos = this.grid.pointerGridPos()
+            if (gridPos != undefined) {
+                this.grid.controllerRegister.registerCableController({graph: this, selection: {cable: cableShape}, gridPos})
+            }
+            evt.cancelBubble = true
+        }).bind(this))
+
         this.cableShapeMoved(cableShape, cableShape.controlPoints)
         return id
     }
@@ -38,19 +47,10 @@ export class CableGraph {
         }
 
         for (let end of [cableShape.first(), cableShape.last()]) {
-            if (this.grid.cache.get(end).length != 0) {
-                let worldPos = this.grid.gridToWorld(end)
-                let x = new Konva.Circle({
-                    x: worldPos[0],
-                    y: worldPos[1],
-                    radius: 8,
-                    stroke: 'black',
-                    fill: 'gray',
-                    strokeWidth: 5
-                })
-                this.grid.splitLayer.add(x)
-                for (let cableEntry of this.grid.cache.get(end).filter(x => x.type == 'cable')) {
-                    this.splitCable(cableEntry.id, end)
+            if (this.grid.cablesAmountAt(end) > 0) {
+                this.grid.addSplit(end)
+                for (let cableEntry of this.grid.cablesAt(end)) {
+                    this.splitCable(cableEntry, end)
                 }
             }
         }
