@@ -9,7 +9,7 @@ fn main() -> eframe::Result<()> {
     eframe::run_native(
         "eframe template",
         native_options,
-        Box::new(|cc| Box::new(emulator_gui::Emulator::new(cc))),
+        Box::new(|cc| Box::new(emulator_gui::EmulatorApp::new(cc))),
     )
 }
 
@@ -26,7 +26,7 @@ fn main() {
             .start(
                 "the_canvas_id", // hardcode it
                 web_options,
-                Box::new(|cc| Box::new(emulator_gui::Emulator::new(cc))),
+                Box::new(|cc| Box::new(emulator_gui::EmulatorApp::new(cc))),
             )
             .await
             .expect("failed to start eframe");

@@ -1,3 +1,4 @@
 mod app;
 mod nodegraph;
-pub use app::Emulator;
+mod actions;
+pub use app::EmulatorApp;

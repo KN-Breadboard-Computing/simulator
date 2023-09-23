@@ -1,7 +1,6 @@
 use std::collections::HashSet;
 
 use egui::Pos2;
-use log::info;
 use slotmap::{new_key_type, SlotMap};
 
 
@@ -116,13 +115,13 @@ new_key_type! {pub struct CableId;}
 
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
 pub struct CablesGraph {
-    pub cables: SlotMap<CableId, Cable>,
+    pub map: SlotMap<CableId, Cable>,
 }
 
 impl CablesGraph {
     pub fn new() -> Self {
         Self {
-            cables: SlotMap::with_key(),
+            map: SlotMap::with_key(),
         }
     }
 
@@ -130,7 +129,7 @@ impl CablesGraph {
         &self,
         point: Pos2,
     ) -> impl Iterator<Item = (CableId, CableFindResult)> + '_ {
-        self.cables
+        self.map
             .iter()
             .filter_map(move |(id, c)| c.find_point(point).map(|r| (id, r)))
     }
@@ -138,20 +137,20 @@ impl CablesGraph {
     ///TODO 
     ///Crash, kiedy jest pętla i spróbujemy ją przesunąć
     pub fn update_neighbours(&mut self, id: CableId) {
-        if self.cables[id].not_a_line() {
-            self.cables.remove(id);
+        if self.map[id].not_a_line() {
+            self.map.remove(id);
             return;
         }
 
-        let old_neighbours_first = &self.cables[id].neighbours[0].clone();
-        let old_neighbours_second = &self.cables[id].neighbours[1].clone();
+        let old_neighbours_first = &self.map[id].neighbours[0].clone();
+        let old_neighbours_second = &self.map[id].neighbours[1].clone();
         for &n_id in old_neighbours_first.iter().chain(old_neighbours_second.iter()) {
-            self.cables[n_id].neighbours[0].remove(&n_id);
-            self.cables[n_id].neighbours[1].remove(&n_id);
+            self.map[n_id].neighbours[0].remove(&n_id);
+            self.map[n_id].neighbours[1].remove(&n_id);
         }
 
-        let start = *self.cables[id].points.first().unwrap(); 
-        let other_end = *self.cables[id].points.last().unwrap(); 
+        let start = *self.map[id].points.first().unwrap(); 
+        let other_end = *self.map[id].points.last().unwrap(); 
 
         let mut update_neighbour = |end: Pos2, n_number: usize| {
             let new_affected = self
@@ -164,27 +163,27 @@ impl CablesGraph {
             for (n_id,res) in new_affected {
                 let p = match res {
                     CableFindResult::OnSegment(seg) => {
-                        self.cables[n_id].points.insert(seg + 1, end);
+                        self.map[n_id].points.insert(seg + 1, end);
                         seg + 1
                     },
                     CableFindResult::Point(i) => i,
                 };
-                if p != 0 && p != self.cables[n_id].points.len() - 1 {
+                if p != 0 && p != self.map[n_id].points.len() - 1 {
                     let [new_first,new_second] = self.split(n_id, p);
-                    self.cables[new_first].neighbours[1].insert(id);
-                    self.cables[new_second].neighbours[0].insert(id);
+                    self.map[new_first].neighbours[1].insert(id);
+                    self.map[new_second].neighbours[0].insert(id);
                     new_neighbours.extend([new_first,new_second]);
                 } else {
                     if p == 0 {
-                        self.cables[n_id].neighbours[0].insert(id);
+                        self.map[n_id].neighbours[0].insert(id);
                     } else {
-                        self.cables[n_id].neighbours[1].insert(id);
+                        self.map[n_id].neighbours[1].insert(id);
                     }
                     new_neighbours.insert(n_id);
                 }
             }
     
-            self.cables[id].neighbours[n_number] = new_neighbours;
+            self.map[id].neighbours[n_number] = new_neighbours;
         };
 
         update_neighbour(start, 0);
@@ -196,7 +195,7 @@ impl CablesGraph {
         let Cable {
             mut points,
             neighbours: [start_neighbours, end_neighbours],
-        } = self.cables.remove(id).unwrap();
+        } = self.map.remove(id).unwrap();
 
         points.insert(point_id, points[point_id]);
 
@@ -211,11 +210,11 @@ impl CablesGraph {
             neighbours: [HashSet::new(), end_neighbours],
         };
 
-        let first_id = self.cables.insert(first_cable);
-        let second_id = self.cables.insert(second_cable);
+        let first_id = self.map.insert(first_cable);
+        let second_id = self.map.insert(second_cable);
 
-        self.cables[first_id].neighbours[1].insert(second_id);
-        self.cables[second_id].neighbours[0].insert(first_id);
+        self.map[first_id].neighbours[1].insert(second_id);
+        self.map[second_id].neighbours[0].insert(first_id);
 
         [first_id, second_id]
     }
@@ -226,7 +225,7 @@ impl CablesGraph {
     }
 
     pub fn move_cable_point(&mut self, id: CableId, point_id: &mut usize, new_pos: Pos2) {
-        self.cables[id].move_point_aligned(point_id, new_pos);
+        self.map[id].move_point_aligned(point_id, new_pos);
     }
 }
 
@@ -244,10 +243,10 @@ mod test {
         let mut cable_b = Cable::new();
         cable_b.points = vec![Pos2::new(10.0, 10.0), Pos2::new(20.0, 10.0)];
 
-        let a = graph.cables.insert(cable_a);
-        let b = graph.cables.insert(cable_b);
+        let a = graph.map.insert(cable_a);
+        let b = graph.map.insert(cable_b);
 
         graph.update_neighbours(b);
-        dbg!(&graph.cables.iter());
+        dbg!(&graph.map.iter());
     }
 }
