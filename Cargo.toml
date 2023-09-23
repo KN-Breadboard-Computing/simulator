@@ -1,2 +1,2 @@
 [workspace]
-members = ["emulator_core", "emulator_web/bridge"]
+members = ["emulator_core", "emulator_web"]
