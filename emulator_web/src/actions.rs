@@ -1,4 +1,4 @@
-use egui::Response;
+use egui::{Color32, Response};
 use emulator_core::components::{
     gates::{And, Not, Or},
     simple::{Constant, DebugOutput},
@@ -125,7 +125,7 @@ pub fn handle_actions(app_state: &mut EmulatorApp, ui_response: &Response) {
                 let touched_cables_and_points = app_state
                     .graph
                     .cables
-                    .find_all_point(pos)
+                    .cables_containing_point(pos)
                     .collect::<Vec<_>>()
                     .into_iter()
                     .map(|(id, result)| match result {
@@ -141,13 +141,34 @@ pub fn handle_actions(app_state: &mut EmulatorApp, ui_response: &Response) {
                     app_state.action = ActionState::CableDraw(touched_cables_and_points);
                 }
             }
+
+            if ui_response.hovered() {
+                let Some(pos) = hover_grid_pos else {return;};
+
+                let touched_cables = app_state
+                    .graph
+                    .cables
+                    .cables_containing_point(pos)
+                    .map(|(id, _)| id)
+                    .collect::<Vec<_>>();
+
+                for id in touched_cables {
+                    let cable = &mut app_state.graph.cables.map[id];
+                    cable.highlighted = Some(Color32::GREEN);
+                    let neighbours = cable.neighbours[0].iter().chain(cable.neighbours[1].iter()).copied().collect::<Vec<_>>();
+                    for n_id in neighbours {
+                        app_state.graph.cables.map[n_id].highlighted = Some(Color32::LIGHT_GREEN);
+                    }
+                }
+            }
         }
         (ActionState::CableDraw(edited_cables), _) => {
             if ui_response.clicked() {
                 for &(id, _) in edited_cables.iter() {
                     if app_state.graph.cables.map.contains_key(id) {
                         app_state.graph.cables.update_neighbours(id);
-                        app_state.graph.connect_cable(id);
+                        app_state.graph.cables.map[id].clean_flat_points();
+                        app_state.graph.update_connections(id);
                     }
                 }
                 app_state.action = ActionState::None;

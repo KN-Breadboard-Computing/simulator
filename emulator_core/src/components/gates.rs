@@ -45,7 +45,7 @@ impl ComponentBehaviour for Or {
     }
 }
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, Default, Serialize, Deserialize)]
 pub struct Not;
 
 impl ComponentBehaviour for Not {
@@ -66,7 +66,7 @@ impl ComponentBehaviour for Not {
     }
 }
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, Default, Serialize, Deserialize)]
 pub struct Xor;
 
 impl ComponentBehaviour for Xor {

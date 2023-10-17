@@ -1,4 +1,4 @@
-use bitvec::slice::BitSlice;
+use bitvec::{slice::BitSlice, bits};
 use serde::{Deserialize, Serialize};
 
 use super::ComponentBehaviour;
@@ -52,7 +52,16 @@ impl ComponentBehaviour for DebugOutput {
 }
 
 #[derive(Debug, Clone, Copy, Default, Serialize, Deserialize)]
-pub struct Fork;
+pub struct Fork {
+    input_size: u8,
+    output_size: u8,
+}
+
+impl Fork {
+    pub fn new(input_size: u8, output_size: u8) -> Self {
+        Self { input_size, output_size }
+    }
+}
 
 impl ComponentBehaviour for Fork {
     fn propagate(
@@ -62,14 +71,17 @@ impl ComponentBehaviour for Fork {
         output: &mut BitSlice,
         _mask: &mut BitSlice,
     ) {
-        output.fill(input[0]);
+        let bit = input[..self.input_size as usize].any();
+        for i in 0..self.output_size {
+            output.set(i as usize, bit);
+        }
     }
 
     fn input_size(&self) -> usize {
-        1
+        self.input_size as usize
     }
 
     fn output_size(&self) -> usize {
-        2
+        self.output_size as usize
     }
 }

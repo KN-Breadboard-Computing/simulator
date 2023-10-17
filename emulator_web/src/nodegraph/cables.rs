@@ -1,73 +1,142 @@
 use std::collections::HashSet;
 
-use egui::Pos2;
-use slotmap::{new_key_type, SlotMap};
+use egui::{Color32, Pos2, Vec2};
+use emulator_core::{graph::id::{TypedId, ComponentId}, components::simple::Fork};
+use slotmap::new_key_type;
 
+use crate::util::{ivec2, IRect, IVec2};
 
-#[derive(Debug, serde::Serialize, serde::Deserialize)]
+new_key_type! {pub struct CableId;}
+
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct Cable {
-    pub points: Vec<Pos2>,
+    pub points: Vec<IVec2>,
     pub neighbours: [HashSet<CableId>; 2],
-}
-
-#[derive(Debug)]
-pub enum CableEnd {
-    First,
-    Last,
+    pub fork: Option<TypedId<Fork>>,
+    pub conn_comp: [Option<ComponentId>; 2],
+    pub color: Color32,
+    pub highlight_level: u8,
 }
 
 #[derive(Debug, Clone, Copy)]
-pub enum CableFindResult {
-    OnSegment(usize),
-    Point(usize),
+pub enum CableEnd {
+    First = 0,
+    Last = 1,
+}
+
+impl CableEnd {
+    pub fn opposite(&self) -> Self {
+        match self {
+            CableEnd::First => CableEnd::Last,
+            CableEnd::Last => CableEnd::First,
+        }
+    }
 }
 
 impl Cable {
+    pub const DEFAULT_COLOR: Color32 = Color32::WHITE;
+    pub const ACTIVATED_COLOR: Color32 = Color32::LIGHT_GREEN;
+
     pub fn new() -> Self {
         Self {
             points: Vec::new(),
             neighbours: [HashSet::new(), HashSet::new()],
+            fork: None,
+            conn_comp: [None; 2],
+            color: Self::DEFAULT_COLOR,
+            highlight_level: 0,
         }
     }
 
-    pub fn starting_in(point: Pos2) -> Self {
+    pub fn starting_in(point: IVec2) -> Self {
         let mut new = Self::new();
         new.points = vec![point, point];
         new
     }
 
-    pub fn point_at_end(&self, end: CableEnd) {
-
+    pub fn not_a_line(&self) -> bool {
+        self.points.len() < 2
     }
 
-    pub fn find_point(&self, point: Pos2) -> Option<CableFindResult> {
-        if Some(&point) == self.points.first() {
-            return Some(CableFindResult::Point(0));
+    pub fn point_id_at_end(&self, end: CableEnd) -> usize {
+        match end {
+            CableEnd::First => 0,
+            CableEnd::Last => self.points.len() - 1,
         }
-
-        for (id, window) in self.points.windows(2).enumerate() {
-            let &[start, end] = window else { unreachable!() };
-
-            if point == end {
-                return Some(CableFindResult::Point(id + 1));
-            }
-
-            let x_range = f32::min(start.x, end.x)..=f32::max(start.x, end.x);
-            let y_range = f32::min(start.y, end.y)..=f32::max(start.y, end.y);
-
-            if x_range.contains(&point.x) && y_range.contains(&point.y) {
-                return Some(CableFindResult::OnSegment(id));
-            }
-        }
-
-        None
     }
 
-    pub fn move_point_aligned(&mut self, id: &mut usize, new_pos: Pos2) {
-        self.points[*id] = new_pos;
+    pub fn point_at_end(&self, end: CableEnd) -> &IVec2 {
+        match end {
+            CableEnd::First => self.points.first().unwrap(),
+            CableEnd::Last => self.points.last().unwrap(),
+        }
+    }
+    pub fn point_at_end_mut(&mut self, end: CableEnd) -> &mut IVec2 {
+        match end {
+            CableEnd::First => self.points.first_mut().unwrap(),
+            CableEnd::Last => self.points.last_mut().unwrap(),
+        }
+    }
+
+    pub fn neighbour_at_end(&self, end: CableEnd) -> &HashSet<CableId> {
+        &self.neighbours[end as usize]
+    }
+
+    pub fn neighbour_at_end_mut(&mut self, end: CableEnd) -> &mut HashSet<CableId> {
+        &mut self.neighbours[end as usize]
+    }
+
+    pub fn conn_comp_at_end(&self, end: CableEnd) -> &Option<ComponentId> {
+        &self.conn_comp[end as usize]
+    }
+
+    pub fn conn_comp_at_end_mut(&mut self, end: CableEnd) -> &mut Option<ComponentId> {
+        &mut self.conn_comp[end as usize]
+    }
+
+    pub fn end_connects_to(&self, end: CableEnd, to: &Self) -> Option<CableEnd> {
+        let point = self.point_at_end(end);
+        [CableEnd::First, CableEnd::Last]
+            .into_iter()
+            .find(|&other_end| to.point_at_end(other_end) == point)
+    }
+
+    pub fn neighbours(&self) -> impl Iterator<Item = &CableId> + '_ {
+        self.neighbours[0].iter().chain(self.neighbours[1].iter())
+    }
+
+    pub fn clean_flat_points(&mut self) {
+        let mut i = 1;
+        while i <= self.points.len().saturating_sub(2) {
+            let [a,b,c] = self.points[i-1..=i+1] else { unreachable!() };
+            if (a.x == b.x && b.x == c.x) || (a.y == b.y && b.y == c.y) {
+                self.points.remove(i);
+            } else {
+                i += 1;
+            }
+        }
+    }
+
+    pub fn reverse(&mut self) {
+        self.points.reverse();
+        self.neighbours.reverse();
+    }
+}
+
+impl Default for Cable {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl Cable {
+    pub fn move_point_aligned(&mut self, id: usize, new_pos: IVec2) -> usize {
+        let mut id = id;
+
+        self.points[id] = new_pos;
 
         for neigh_offset in [-1, 1] {
-            let neigh_id = *id as i32 + neigh_offset;
+            let neigh_id = id as i32 + neigh_offset;
             if neigh_id < 0 || neigh_id >= self.points.len() as i32 {
                 continue;
             }
@@ -76,7 +145,7 @@ impl Cable {
             if neigh_id == 0 {
                 self.points.insert(1, self.points[0]);
                 neigh_id += 1;
-                *id += 1;
+                id += 1;
             }
 
             if neigh_id == self.points.len() - 1 {
@@ -86,7 +155,7 @@ impl Cable {
 
             let neigh_neigh_id = (neigh_id as i32 + neigh_offset) as usize;
 
-            let point = self.points[*id];
+            let point = self.points[id];
             let neigh = self.points[neigh_id];
             let neigh_neigh = self.points[neigh_neigh_id];
 
@@ -104,149 +173,79 @@ impl Cable {
                 }
             }
         }
-    }
 
-    pub fn not_a_line(&self) -> bool {
-        self.points.len() < 2
+        id
     }
 }
 
-new_key_type! {pub struct CableId;}
-
-#[derive(Debug, serde::Serialize, serde::Deserialize)]
-pub struct CablesGraph {
-    pub map: SlotMap<CableId, Cable>,
+#[derive(Debug, Clone, Copy)]
+pub enum CableIntersection {
+    OnSegment(usize),
+    OnPoint(usize),
 }
 
-impl CablesGraph {
-    pub fn new() -> Self {
-        Self {
-            map: SlotMap::with_key(),
-        }
-    }
-
-    pub fn find_all_point(
-        &self,
-        point: Pos2,
-    ) -> impl Iterator<Item = (CableId, CableFindResult)> + '_ {
-        self.map
-            .iter()
-            .filter_map(move |(id, c)| c.find_point(point).map(|r| (id, r)))
-    }
-
-    ///TODO 
-    ///Crash, kiedy jest pętla i spróbujemy ją przesunąć
-    pub fn update_neighbours(&mut self, id: CableId) {
-        if self.map[id].not_a_line() {
-            self.map.remove(id);
-            return;
+impl Cable {
+    pub fn intersect_point(&self, pos: Pos2, epsilon: f32) -> Option<CableIntersection> {
+        if self.not_a_line() {
+            return None;
         }
 
-        let old_neighbours_first = &self.map[id].neighbours[0].clone();
-        let old_neighbours_second = &self.map[id].neighbours[1].clone();
-        for &n_id in old_neighbours_first.iter().chain(old_neighbours_second.iter()) {
-            self.map[n_id].neighbours[0].remove(&n_id);
-            self.map[n_id].neighbours[1].remove(&n_id);
-        }
-
-        let start = *self.map[id].points.first().unwrap(); 
-        let other_end = *self.map[id].points.last().unwrap(); 
-
-        let mut update_neighbour = |end: Pos2, n_number: usize| {
-            let new_affected = self
-                .find_all_point(end)
-                .filter(|&(i,_)| i != id)
-                .collect::<Vec<_>>();
-    
-            let mut new_neighbours = HashSet::new();
-    
-            for (n_id,res) in new_affected {
-                let p = match res {
-                    CableFindResult::OnSegment(seg) => {
-                        self.map[n_id].points.insert(seg + 1, end);
-                        seg + 1
-                    },
-                    CableFindResult::Point(i) => i,
-                };
-                if p != 0 && p != self.map[n_id].points.len() - 1 {
-                    let [new_first,new_second] = self.split(n_id, p);
-                    self.map[new_first].neighbours[1].insert(id);
-                    self.map[new_second].neighbours[0].insert(id);
-                    new_neighbours.extend([new_first,new_second]);
-                } else {
-                    if p == 0 {
-                        self.map[n_id].neighbours[0].insert(id);
-                    } else {
-                        self.map[n_id].neighbours[1].insert(id);
-                    }
-                    new_neighbours.insert(n_id);
-                }
+        for (id, point) in self.points.iter().enumerate() {
+            if point.equals_with_rounding(pos, epsilon) {
+                return Some(CableIntersection::OnPoint(id));
             }
-    
-            self.map[id].neighbours[n_number] = new_neighbours;
-        };
+        }
 
-        update_neighbour(start, 0);
-        update_neighbour(other_end, 1);
+        for (id, window) in self.points.windows(2).enumerate() {
+            let &[start, end] = window else { unreachable!() };
 
+            let min = ivec2(start.x.min(end.x), start.y.min(end.y));
+            let max = ivec2(start.x.max(end.x), start.y.max(end.y));
+
+            let rect = IRect::new(min, max - min);
+
+            if rect.contains_with_rounding(pos, epsilon) {
+                return Some(CableIntersection::OnSegment(id));
+            }
+        }
+
+        None
     }
 
-    pub fn split(&mut self, id: CableId, point_id: usize) -> [CableId; 2] {
-        let Cable {
-            mut points,
-            neighbours: [start_neighbours, end_neighbours],
-        } = self.map.remove(id).unwrap();
+    pub fn intersect_point_exact(&self, pos: IVec2) -> Option<CableIntersection> {
+        if self.not_a_line() {
+            return None;
+        }
 
-        points.insert(point_id, points[point_id]);
+        for (id, point) in self.points.iter().enumerate() {
+            if point == &pos {
+                return Some(CableIntersection::OnPoint(id));
+            }
+        }
 
-        let (first_points, second_points) = points.split_at(point_id + 1);
+        for (id, window) in self.points.windows(2).enumerate() {
+            let &[start, end] = window else { unreachable!() };
 
-        let first_cable = Cable {
-            points: first_points.to_vec(),
-            neighbours: [start_neighbours, HashSet::new()],
-        };
-        let second_cable = Cable {
-            points: second_points.to_vec(),
-            neighbours: [HashSet::new(), end_neighbours],
-        };
+            let min = ivec2(start.x.min(end.x), start.y.min(end.y));
+            let max = ivec2(start.x.max(end.x), start.y.max(end.y));
 
-        let first_id = self.map.insert(first_cable);
-        let second_id = self.map.insert(second_cable);
+            let rect = IRect::new(min, max - min);
 
-        self.map[first_id].neighbours[1].insert(second_id);
-        self.map[second_id].neighbours[0].insert(first_id);
+            if rect.contains(pos) {
+                return Some(CableIntersection::OnSegment(id));
+            }
+        }
 
-        [first_id, second_id]
+        None
     }
 
-    ///TODO 
-    pub fn merge(&mut self, id_a: CableId, id_b: CableId) {
-        
-    }
-
-    pub fn move_cable_point(&mut self, id: CableId, point_id: &mut usize, new_pos: Pos2) {
-        self.map[id].move_point_aligned(point_id, new_pos);
-    }
-}
-
-#[cfg(test)]
-mod test {
-    use super::*;
-
-    #[test]
-    fn test() {
-        let mut graph = CablesGraph::new();
-
-        let mut cable_a = Cable::new();
-        cable_a.points = vec![Pos2::new(0.0, 0.0), Pos2::new(10.0, 0.0), Pos2::new(10.0, 10.0)];
-        
-        let mut cable_b = Cable::new();
-        cable_b.points = vec![Pos2::new(10.0, 10.0), Pos2::new(20.0, 10.0)];
-
-        let a = graph.map.insert(cable_a);
-        let b = graph.map.insert(cable_b);
-
-        graph.update_neighbours(b);
-        dbg!(&graph.map.iter());
+    pub fn subdivide_at_intersection(&mut self, int: CableIntersection, pos: IVec2) -> usize {
+        match int {
+            CableIntersection::OnSegment(i) => {
+                self.points.insert(i + 1, pos);
+                i + 1
+            }
+            CableIntersection::OnPoint(i) => i,
+        }
     }
 }

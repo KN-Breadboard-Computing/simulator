@@ -7,9 +7,9 @@ pub fn main() {
     let mut graph = Graph::new();
 
     let a = graph.add_comp(Constant { state: false });
-    let a_fork = graph.add_comp(Fork);
+    let a_fork = graph.add_comp(Fork::new(1, 2));
     let b = graph.add_comp(Constant { state: false });
-    let b_fork = graph.add_comp(Fork);
+    let b_fork = graph.add_comp(Fork::new(1, 2));
 
     let xor = graph.add_comp(Xor);
     let and = graph.add_comp(And);

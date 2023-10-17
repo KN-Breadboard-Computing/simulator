@@ -11,7 +11,7 @@ pub fn main() {
 
     let top_or = graph.add_comp(Or);
     let top_not = graph.add_comp(Not);
-    let top_fork = graph.add_comp(Fork);
+    let top_fork = graph.add_comp(Fork::new(1, 2));
 
     graph.add_conn(r, 0, top_or, 0);
     graph.add_conn(top_or, 0, top_not, 0);
@@ -19,7 +19,7 @@ pub fn main() {
 
     let bot_or = graph.add_comp(Or);
     let bot_not = graph.add_comp(Not);
-    let bot_fork = graph.add_comp(Fork);
+    let bot_fork = graph.add_comp(Fork::new(1, 2));
 
     graph.add_conn(s, 0, bot_or, 0);
     graph.add_conn(bot_or, 0, bot_not, 0);

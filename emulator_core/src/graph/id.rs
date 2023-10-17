@@ -6,23 +6,23 @@ use slotmap::new_key_type;
 pub use slotmap::{Key, KeyData};
 
 new_key_type! {
-    pub struct NodeId;
+    pub struct ComponentId;
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub struct TypedId<C> {
-    inner: NodeId,
+    inner: ComponentId,
     marker: PhantomData<C>,
 }
 
-impl<C> From<TypedId<C>> for NodeId {
+impl<C> From<TypedId<C>> for ComponentId {
     fn from(value: TypedId<C>) -> Self {
         value.inner
     }
 }
 
-impl<C> From<NodeId> for TypedId<C> {
-    fn from(value: NodeId) -> Self {
+impl<C> From<ComponentId> for TypedId<C> {
+    fn from(value: ComponentId) -> Self {
         Self { inner: value, marker: PhantomData }
     }
 }

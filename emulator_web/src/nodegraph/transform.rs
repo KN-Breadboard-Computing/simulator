@@ -1,6 +1,8 @@
 use std::ops::RangeInclusive;
 
-use egui::{Vec2, Rect, emath::RectTransform};
+use egui::{Vec2, Rect, emath::RectTransform, Pos2};
+
+use crate::util::IVec2;
 
 #[derive(Debug,Clone,serde::Deserialize,serde::Serialize)]
 pub struct NodeGraphBounds {
@@ -11,7 +13,7 @@ pub struct NodeGraphBounds {
 
 impl Default for NodeGraphBounds {
     fn default() -> Self {
-        Self { x: -10.0..=10.0, y: -10.0..=10.0, zoom: 1.0 }
+        Self { x: -20.0..=20.0, y: -20.0..=20.0, zoom: 1.0 }
     }
 }
 
@@ -32,6 +34,7 @@ impl NodeGraphBounds {
     }
 }
 
+#[derive(Debug, Clone)]
 pub struct NodeGraphTransform {
     pub screen_frame: Rect,
     pub bounds: NodeGraphBounds,
@@ -49,4 +52,21 @@ impl NodeGraphTransform {
     pub fn to_bounds(&self) -> RectTransform {
         RectTransform::from_to(self.screen_frame, self.bounds.rect())
     }
+
+    pub fn point_to_screen(&self, point: Pos2) -> Pos2 {
+        self.to_screen().transform_pos(point)
+    }
+
+    pub fn point_to_bounds(&self, point: Pos2) -> Pos2 {
+        self.to_bounds().transform_pos(point)
+    }
+
+    pub fn point_i_to_screen(&self, point: IVec2) -> Pos2 {
+        self.point_to_screen(point.into())
+    }
+
+    pub fn point_to_bounds_i(&self, point: Pos2) -> IVec2 {
+        self.point_to_bounds(point).into()
+    }
+
 }

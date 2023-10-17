@@ -8,7 +8,7 @@ use serde::{Serialize, Deserialize};
 use slotmap::{SecondaryMap, SlotMap};
 
 use self::{
-    id::{NodeId, TypedId},
+    id::{ComponentId, TypedId},
     node::{Node, Slot},
 };
 use crate::components::{Component, ComponentBehaviour};
@@ -18,9 +18,9 @@ pub mod node;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Graph {
-    pub nodes: SlotMap<NodeId, Node>,
-    pub inputs: SecondaryMap<NodeId, BitVec>,
-    pub outputs: SecondaryMap<NodeId, BitVec>,
+    pub nodes: SlotMap<ComponentId, Node>,
+    pub inputs: SecondaryMap<ComponentId, BitVec>,
+    pub outputs: SecondaryMap<ComponentId, BitVec>,
 }
 
 const MAX_PROPAGATION_DEPTH: usize = 10_000;
@@ -53,7 +53,7 @@ impl Graph {
         node_ref.into()
     }
 
-    pub fn remove_comp(&mut self, node: impl Into<NodeId>) {
+    pub fn remove_comp(&mut self, node: impl Into<ComponentId>) {
         let removed = self.nodes.remove(node.into()).unwrap();
 
         for input in removed.input_slots {
@@ -69,9 +69,9 @@ impl Graph {
 
     pub fn add_conn(
         &mut self,
-        node_a: impl Into<NodeId>,
+        node_a: impl Into<ComponentId>,
         slot_a: usize,
-        node_b: impl Into<NodeId>,
+        node_b: impl Into<ComponentId>,
         slot_b: usize,
     ) {
         let node_a = node_a.into();
@@ -89,9 +89,9 @@ impl Graph {
 
     pub fn remove_conn(
         &mut self,
-        node_a: impl Into<NodeId>,
+        node_a: impl Into<ComponentId>,
         slot_a: usize,
-        node_b: impl Into<NodeId>,
+        node_b: impl Into<ComponentId>,
         slot_b: usize,
     ) {
         let node_a = node_a.into();
@@ -101,7 +101,35 @@ impl Graph {
         self.nodes[node_b].input_slots[slot_b] = None;
     }
 
-    pub fn propagate_from(&mut self, node: impl Into<NodeId>) {
+    pub fn remove_conn_from(
+        &mut self,
+        node: impl Into<ComponentId>,
+        slot: usize,
+    ) {
+        let node = node.into();
+
+        let slot = self.nodes[node].output_slots[slot].take();
+
+        if let Some(slot) = slot {
+            self.nodes[slot.target_node].input_slots[slot.target_slot] = None;
+        }
+    }
+
+    pub fn remove_conn_to(
+        &mut self,
+        node: impl Into<ComponentId>,
+        slot: usize,
+    ) {
+        let node = node.into();
+
+        let slot = self.nodes[node].input_slots[slot].take();
+
+        if let Some(slot) = slot {
+            self.nodes[slot.target_node].output_slots[slot.target_slot] = None;
+        }
+    }
+
+    pub fn propagate_from(&mut self, node: impl Into<ComponentId>) {
         let node = node.into();
 
         let mut queue = VecDeque::new();
@@ -155,29 +183,29 @@ impl Graph {
         }
     }
 
-    pub fn add_input_slot(&mut self, node: impl Into<NodeId>) {
+    pub fn add_input_slot(&mut self, node: impl Into<ComponentId>) {
         let node = node.into();
         self.nodes[node].input_slots.push(None);
         self.inputs[node].push(false);
     }
 
-    pub fn add_output_slot(&mut self, node: impl Into<NodeId>) {
+    pub fn add_output_slot(&mut self, node: impl Into<ComponentId>) {
         let node = node.into();
         self.nodes[node].output_slots.push(None);
         self.outputs[node].push(false);
     }
 }
 
-impl Index<NodeId> for Graph {
+impl Index<ComponentId> for Graph {
     type Output = Component;
 
-    fn index(&self, index: NodeId) -> &Self::Output {
+    fn index(&self, index: ComponentId) -> &Self::Output {
         &self.nodes[index].component
     }
 }
 
-impl IndexMut<NodeId> for Graph {
-    fn index_mut(&mut self, index: NodeId) -> &mut Self::Output {
+impl IndexMut<ComponentId> for Graph {
+    fn index_mut(&mut self, index: ComponentId) -> &mut Self::Output {
         &mut self.nodes[index].component
     }
 }
