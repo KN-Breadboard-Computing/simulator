@@ -1,5 +1,5 @@
 [package]
-name = "emulator_gui"
+name = "simulator_gui"
 version = "0.1.0"
 edition = "2021"
 rust-version = "1.71"
@@ -18,7 +18,7 @@ log = "0.4"
 serde = { version = "1", features = ["derive"] }
 slotmap = { version = "1.0.6", features = ["serde"] }
 
-emulator_core = {path = "../emulator_core"}
+simulator_core = {path = "../simulator_core"}
 strum = "0.25.0"
 strum_macros = "0.25.2"
 

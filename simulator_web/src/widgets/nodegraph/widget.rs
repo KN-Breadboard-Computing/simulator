@@ -4,7 +4,7 @@ use egui::{
     epaint::PathShape, pos2, vec2, Align2, Color32, FontId, Painter, Pos2, Rect, Response, Sense,
     Stroke, Ui, Vec2,
 };
-use emulator_core::components::Component;
+use simulator_core::components::Component;
 use log::info;
 
 use crate::{

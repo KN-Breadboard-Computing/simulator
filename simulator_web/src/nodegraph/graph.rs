@@ -1,7 +1,7 @@
 use std::{array::from_fn, collections::HashSet};
 
 use egui::{Pos2, Vec2};
-use emulator_core::{
+use simulator_core::{
     components::{simple::Fork, ComponentBehaviour},
     graph::{id::ComponentId, Graph},
 };

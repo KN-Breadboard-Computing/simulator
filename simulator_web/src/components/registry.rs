@@ -1,6 +1,6 @@
 use std::fmt::Debug;
 
-use emulator_core::components::{
+use simulator_core::components::{
     gates::{And, Not, Or, Xor},
     simple::{Constant, DebugOutput},
     Component,
@@ -8,7 +8,7 @@ use emulator_core::components::{
 
 pub struct ComponentEntry {
     pub name: String,
-    pub create: Box<dyn Fn() -> emulator_core::components::Component>,
+    pub create: Box<dyn Fn() -> simulator_core::components::Component>,
 }
 
 /// TODO

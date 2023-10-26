@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 
 use egui::{Color32, Pos2, Vec2};
-use emulator_core::{graph::id::{TypedId, ComponentId}, components::simple::Fork};
+use simulator_core::{graph::id::{TypedId, ComponentId}, components::simple::Fork};
 use slotmap::new_key_type;
 
 use crate::util::{ivec2, IRect, IVec2};

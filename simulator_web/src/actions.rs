@@ -1,5 +1,5 @@
 use egui::{Color32, Response};
-use emulator_core::components::{
+use simulator_core::components::{
     gates::{And, Not, Or},
     simple::{Constant, DebugOutput},
 };

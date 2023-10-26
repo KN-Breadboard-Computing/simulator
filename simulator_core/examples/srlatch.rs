@@ -1,6 +1,6 @@
 use std::io::stdin;
 
-use emulator_core::{graph::Graph, components::{simple::{Constant, DebugOutput, Fork}, gates::{Or, Not}}};
+use simulator_core::{graph::Graph, components::{simple::{Constant, DebugOutput, Fork}, gates::{Or, Not}}};
 
 pub fn main() {
     

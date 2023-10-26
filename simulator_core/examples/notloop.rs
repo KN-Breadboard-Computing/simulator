@@ -1,4 +1,4 @@
-use emulator_core::{graph::Graph, components::gates::Not};
+use simulator_core::{graph::Graph, components::gates::Not};
 
 fn main() {
     let mut graph = Graph::new();

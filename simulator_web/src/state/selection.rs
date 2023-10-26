@@ -1,4 +1,4 @@
-use emulator_core::graph::id::ComponentId;
+use simulator_core::graph::id::ComponentId;
 
 use crate::nodegraph::cables::CableId;
 

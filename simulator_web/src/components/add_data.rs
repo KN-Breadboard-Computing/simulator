@@ -1,4 +1,4 @@
-use emulator_core::components::{Component, ComponentBehaviour};
+use simulator_core::components::{Component, ComponentBehaviour};
 
 use crate::util::{IVec2, ivec2};
 

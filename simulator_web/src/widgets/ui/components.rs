@@ -5,7 +5,7 @@ use crate::{components::registry::{ComponentRegistry, ComponentRid, ComponentEnt
 pub fn show_default_component_menu(
     ui: &mut Ui,
     node: &mut ComponentNode,
-    comp: &mut emulator_core::components::Component,
+    comp: &mut simulator_core::components::Component,
     entry: &ComponentEntry
 ) {
     ui.label(format!("{:?}", node));
